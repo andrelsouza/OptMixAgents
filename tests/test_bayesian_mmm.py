@@ -20,21 +20,17 @@ def sample_data() -> pd.DataFrame:
     tv = rng.uniform(20_000, 100_000, n)
 
     # Simulated revenue with known channel effects + noise
-    revenue = (
-        50_000
-        + 0.8 * google
-        + 0.5 * meta
-        + 0.3 * tv
-        + rng.normal(0, 5_000, n)
-    )
+    revenue = 50_000 + 0.8 * google + 0.5 * meta + 0.3 * tv + rng.normal(0, 5_000, n)
 
-    return pd.DataFrame({
-        "date": dates,
-        "google_ads": google,
-        "meta_ads": meta,
-        "tv_spend": tv,
-        "revenue": revenue,
-    })
+    return pd.DataFrame(
+        {
+            "date": dates,
+            "google_ads": google,
+            "meta_ads": meta,
+            "tv_spend": tv,
+            "revenue": revenue,
+        }
+    )
 
 
 @pytest.fixture(scope="module")

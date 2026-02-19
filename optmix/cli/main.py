@@ -147,17 +147,23 @@ def setup() -> None:
                 )
                 response = client.chat(
                     system="You are a helpful assistant.",
-                    messages=[{"role": "user", "content": "Say 'OptMix connected!' in 3 words or fewer."}],
+                    messages=[
+                        {"role": "user", "content": "Say 'OptMix connected!' in 3 words or fewer."}
+                    ],
                     max_tokens=20,
                 )
                 console.print(f"[green]Connection OK![/green] Response: {response.content}")
             except Exception as e:
                 console.print(f"[yellow]Connection test failed:[/yellow] {e}")
-                console.print("[dim]Your config is saved. You can fix the key and re-run setup later.[/dim]")
+                console.print(
+                    "[dim]Your config is saved. You can fix the key and re-run setup later.[/dim]"
+                )
 
 
 @cli.command()
-@click.option("--llm", default=None, help="LLM provider/model (e.g. anthropic/claude-sonnet-4-5-20250929)")
+@click.option(
+    "--llm", default=None, help="LLM provider/model (e.g. anthropic/claude-sonnet-4-5-20250929)"
+)
 @click.option("--api-key", default=None, help="API key (overrides saved config)")
 def chat(llm: str | None, api_key: str | None) -> None:
     """Start an interactive chat with the OptMix team."""
@@ -286,11 +292,18 @@ def agent(agent_name: str, llm: str | None, api_key: str | None) -> None:
 
 @cli.command()
 @click.option("--data", "data_path", type=click.Path(exists=True), help="Path to CSV data")
-@click.option("--sample", "sample_name", type=click.Choice(["ecommerce", "retail_chain", "saas_b2b"]), help="Use built-in sample data")
+@click.option(
+    "--sample",
+    "sample_name",
+    type=click.Choice(["ecommerce", "retail_chain", "saas_b2b"]),
+    help="Use built-in sample data",
+)
 @click.option("--target", default="revenue", help="Target variable column name")
 @click.option("--budget", type=float, default=None, help="Total budget for optimization")
 @click.option("--workflow", default="quick_optimization", help="Workflow to execute")
-@click.option("--llm", default=None, help="LLM provider/model (e.g. anthropic/claude-sonnet-4-5-20250929)")
+@click.option(
+    "--llm", default=None, help="LLM provider/model (e.g. anthropic/claude-sonnet-4-5-20250929)"
+)
 @click.option("--api-key", default=None, help="API key (overrides saved config)")
 def run(
     data_path: str | None,
@@ -314,7 +327,11 @@ def run(
         objective += f" and optimize budget allocation for ${budget:,.0f}"
 
     def on_step(step_result: Any) -> None:
-        status_icon = {"completed": "[green]OK[/green]", "failed": "[red]FAIL[/red]", "skipped": "[yellow]SKIP[/yellow]"}
+        status_icon = {
+            "completed": "[green]OK[/green]",
+            "failed": "[red]FAIL[/red]",
+            "skipped": "[yellow]SKIP[/yellow]",
+        }
         icon = status_icon.get(step_result.status, step_result.status)
         console.print(f"  {icon} Step: {step_result.step_id} ({step_result.agent_name})")
 

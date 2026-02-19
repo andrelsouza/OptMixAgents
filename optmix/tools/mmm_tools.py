@@ -18,14 +18,61 @@ FIT_MMM_MODEL_SCHEMA = ToolSchema(
     name="fit_mmm_model",
     description="Fit a Marketing Mix Model on the loaded data. 'ridge' mode is fast (~2s) with hardcoded transforms; 'bayesian' mode uses MCMC to learn adstock/saturation from data (~2-5 min) with full uncertainty.",
     parameters=[
-        ToolParameter(name="model_type", type="string", description="Model backend: 'ridge' (fast, hardcoded transforms) or 'bayesian' (MCMC, learned parameters).", required=False, default="ridge", enum=["ridge", "bayesian"]),
-        ToolParameter(name="target", type="string", description="Target variable column name.", required=False, default="revenue"),
-        ToolParameter(name="date_col", type="string", description="Date column name.", required=False, default="date"),
-        ToolParameter(name="channels", type="array", description="List of channel spend column names. Auto-detected if not provided.", required=False),
-        ToolParameter(name="controls", type="array", description="List of control variable column names.", required=False),
-        ToolParameter(name="chains", type="integer", description="MCMC chains (bayesian only).", required=False, default=4),
-        ToolParameter(name="draws", type="integer", description="MCMC draws per chain (bayesian only).", required=False, default=1000),
-        ToolParameter(name="tune", type="integer", description="MCMC tuning steps (bayesian only).", required=False, default=1000),
+        ToolParameter(
+            name="model_type",
+            type="string",
+            description="Model backend: 'ridge' (fast, hardcoded transforms) or 'bayesian' (MCMC, learned parameters).",
+            required=False,
+            default="ridge",
+            enum=["ridge", "bayesian"],
+        ),
+        ToolParameter(
+            name="target",
+            type="string",
+            description="Target variable column name.",
+            required=False,
+            default="revenue",
+        ),
+        ToolParameter(
+            name="date_col",
+            type="string",
+            description="Date column name.",
+            required=False,
+            default="date",
+        ),
+        ToolParameter(
+            name="channels",
+            type="array",
+            description="List of channel spend column names. Auto-detected if not provided.",
+            required=False,
+        ),
+        ToolParameter(
+            name="controls",
+            type="array",
+            description="List of control variable column names.",
+            required=False,
+        ),
+        ToolParameter(
+            name="chains",
+            type="integer",
+            description="MCMC chains (bayesian only).",
+            required=False,
+            default=4,
+        ),
+        ToolParameter(
+            name="draws",
+            type="integer",
+            description="MCMC draws per chain (bayesian only).",
+            required=False,
+            default=1000,
+        ),
+        ToolParameter(
+            name="tune",
+            type="integer",
+            description="MCMC tuning steps (bayesian only).",
+            required=False,
+            default=1000,
+        ),
     ],
     returns_description="Model summary with R², MAPE, ROAS per channel, channel contributions, and (bayesian) learned parameters with uncertainty.",
     agent_scope=["modeler"],
@@ -43,7 +90,12 @@ GET_SATURATION_CURVES_SCHEMA = ToolSchema(
     name="get_saturation_curves",
     description="Extract saturation (diminishing returns) curves for marketing channels. Shows how response changes as spend increases.",
     parameters=[
-        ToolParameter(name="channel", type="string", description="Specific channel name, or omit for all channels.", required=False),
+        ToolParameter(
+            name="channel",
+            type="string",
+            description="Specific channel name, or omit for all channels.",
+            required=False,
+        ),
     ],
     returns_description="Saturation curve data with inflection points per channel.",
     agent_scope=["modeler", "optimizer"],
@@ -59,6 +111,7 @@ GET_MODEL_DIAGNOSTICS_SCHEMA = ToolSchema(
 
 
 # --- Implementations ---
+
 
 def fit_mmm_model(
     state: Any,
@@ -77,10 +130,17 @@ def fit_mmm_model(
     if df is None:
         df = _get_state(state, "raw_data")
     if df is None:
-        return {"status": "error", "message": "No data available. Load data first.", "summary": "Cannot fit model: no data loaded."}
+        return {
+            "status": "error",
+            "message": "No data available. Load data first.",
+            "summary": "Cannot fit model: no data loaded.",
+        }
 
     if target not in df.columns:
-        return {"status": "error", "message": f"Target column '{target}' not found. Available: {list(df.columns)}"}
+        return {
+            "status": "error",
+            "message": f"Target column '{target}' not found. Available: {list(df.columns)}",
+        }
 
     try:
         if model_type == "bayesian":
@@ -136,7 +196,11 @@ def fit_mmm_model(
         return response
 
     except Exception as e:
-        return {"status": "error", "message": f"Model fitting failed: {e}", "summary": f"Model fitting error: {e}"}
+        return {
+            "status": "error",
+            "message": f"Model fitting failed: {e}",
+            "summary": f"Model fitting error: {e}",
+        }
 
 
 def get_channel_contributions(state: Any) -> dict[str, Any]:
@@ -164,7 +228,9 @@ def get_channel_contributions(state: Any) -> dict[str, Any]:
 
         for ch in channels:
             if ch in contribution_totals:
-                contribution_shares[ch] = round(abs(contribution_totals[ch]) / total * 100, 1) if total > 0 else 0
+                contribution_shares[ch] = (
+                    round(abs(contribution_totals[ch]) / total * 100, 1) if total > 0 else 0
+                )
 
         base_total = float(contributions["base"].sum()) if "base" in contributions.columns else 0
 
@@ -263,6 +329,7 @@ def get_model_diagnostics(state: Any) -> dict[str, Any]:
 
 
 # --- Helpers ---
+
 
 def _get_state(state: Any, key: str) -> Any:
     if hasattr(state, "get"):

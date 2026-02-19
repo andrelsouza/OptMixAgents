@@ -21,7 +21,13 @@ LOAD_INDUSTRY_BENCHMARKS_SCHEMA = ToolSchema(
     name="load_industry_benchmarks",
     description="Load industry benchmark data for ROAS, adstock rates, and model fit thresholds. Use to sanity-check model outputs.",
     parameters=[
-        ToolParameter(name="industry", type="string", description="Industry vertical.", required=True, enum=["ecommerce", "retail", "saas_b2b"]),
+        ToolParameter(
+            name="industry",
+            type="string",
+            description="Industry vertical.",
+            required=True,
+            enum=["ecommerce", "retail", "saas_b2b"],
+        ),
     ],
     returns_description="Benchmark data with typical ROAS ranges, adstock rates, and model fit thresholds.",
     agent_scope=["strategist", "modeler"],
@@ -45,6 +51,7 @@ ASSESS_DATA_READINESS_SCHEMA = ToolSchema(
 
 
 # --- Implementations ---
+
 
 def load_industry_benchmarks(state: Any, *, industry: str) -> dict[str, Any]:
     """Load industry benchmarks from knowledge YAML."""
@@ -116,24 +123,41 @@ def assess_data_readiness(state: Any) -> dict[str, Any]:
     import numpy as np
 
     # Check 1: Sufficient observations
-    checklist.append({
-        "criterion": "observation_count",
-        "passed": len(df) >= 52,
-        "detail": f"{len(df)} observations ({'sufficient' if len(df) >= 52 else 'insufficient, need 52+'})",
-        "recommendation": None if len(df) >= 52 else "At least 52 weekly observations (1 year) recommended.",
-    })
+    checklist.append(
+        {
+            "criterion": "observation_count",
+            "passed": len(df) >= 52,
+            "detail": f"{len(df)} observations ({'sufficient' if len(df) >= 52 else 'insufficient, need 52+'})",
+            "recommendation": None
+            if len(df) >= 52
+            else "At least 52 weekly observations (1 year) recommended.",
+        }
+    )
 
     # Check 2: Channel count
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    exclude = {"revenue", "pipeline_generated", "conversions", "sales",
-               "avg_price", "promo", "store_count", "competitor_promo", "sales_headcount"}
+    exclude = {
+        "revenue",
+        "pipeline_generated",
+        "conversions",
+        "sales",
+        "avg_price",
+        "promo",
+        "store_count",
+        "competitor_promo",
+        "sales_headcount",
+    }
     channels = [c for c in numeric_cols if c not in exclude]
-    checklist.append({
-        "criterion": "channel_count",
-        "passed": len(channels) >= 3,
-        "detail": f"{len(channels)} marketing channels detected",
-        "recommendation": None if len(channels) >= 3 else "At least 3 channels needed for meaningful MMM.",
-    })
+    checklist.append(
+        {
+            "criterion": "channel_count",
+            "passed": len(channels) >= 3,
+            "detail": f"{len(channels)} marketing channels detected",
+            "recommendation": None
+            if len(channels) >= 3
+            else "At least 3 channels needed for meaningful MMM.",
+        }
+    )
 
     # Check 3: Spend variation
     low_variation = []
@@ -145,31 +169,47 @@ def assess_data_readiness(state: Any) -> dict[str, Any]:
         cv = series.std() / series.mean() if series.mean() > 0 else 0
         if cv < 0.1:
             low_variation.append(col)
-    checklist.append({
-        "criterion": "spend_variation",
-        "passed": len(low_variation) == 0,
-        "detail": "All channels have sufficient variation" if not low_variation else f"Low variation in: {', '.join(low_variation)}",
-        "recommendation": None if not low_variation else "Channels with flat spend cannot be modeled reliably.",
-    })
+    checklist.append(
+        {
+            "criterion": "spend_variation",
+            "passed": len(low_variation) == 0,
+            "detail": "All channels have sufficient variation"
+            if not low_variation
+            else f"Low variation in: {', '.join(low_variation)}",
+            "recommendation": None
+            if not low_variation
+            else "Channels with flat spend cannot be modeled reliably.",
+        }
+    )
 
     # Check 4: Date column
     date_cols = [c for c in df.columns if "date" in c.lower()]
-    checklist.append({
-        "criterion": "date_column",
-        "passed": len(date_cols) > 0,
-        "detail": f"Date column found: {date_cols[0]}" if date_cols else "No date column detected",
-        "recommendation": None if date_cols else "Add a date column for time-series modeling.",
-    })
+    checklist.append(
+        {
+            "criterion": "date_column",
+            "passed": len(date_cols) > 0,
+            "detail": f"Date column found: {date_cols[0]}"
+            if date_cols
+            else "No date column detected",
+            "recommendation": None if date_cols else "Add a date column for time-series modeling.",
+        }
+    )
 
     # Check 5: Target variable
     target_candidates = ["revenue", "pipeline_generated", "conversions", "sales"]
     found_targets = [c for c in target_candidates if c in df.columns]
-    checklist.append({
-        "criterion": "target_variable",
-        "passed": len(found_targets) > 0,
-        "detail": f"Target variable(s): {', '.join(found_targets)}" if found_targets else "No standard target found",
-        "recommendation": None if found_targets else "Add a target column (revenue, conversions, etc.).",
-    })
+    checklist.append(
+        {
+            "criterion": "target_variable",
+            "passed": len(found_targets) > 0,
+            "detail": f"Target variable(s): {', '.join(found_targets)}"
+            if found_targets
+            else "No standard target found",
+            "recommendation": None
+            if found_targets
+            else "Add a target column (revenue, conversions, etc.).",
+        }
+    )
 
     # Check 6: Date range covers at least 1 year
     sufficient_range = False
@@ -180,12 +220,18 @@ def assess_data_readiness(state: Any) -> dict[str, Any]:
             sufficient_range = date_span >= 350
         except Exception:
             pass
-    checklist.append({
-        "criterion": "date_range_coverage",
-        "passed": sufficient_range,
-        "detail": f"Date range: {date_span} days" if date_cols and sufficient_range else "Insufficient date range",
-        "recommendation": None if sufficient_range else "At least 1 year of data recommended for seasonality.",
-    })
+    checklist.append(
+        {
+            "criterion": "date_range_coverage",
+            "passed": sufficient_range,
+            "detail": f"Date range: {date_span} days"
+            if date_cols and sufficient_range
+            else "Insufficient date range",
+            "recommendation": None
+            if sufficient_range
+            else "At least 1 year of data recommended for seasonality.",
+        }
+    )
 
     passed_count = sum(1 for c in checklist if c["passed"])
     total_count = len(checklist)
@@ -208,6 +254,7 @@ def assess_data_readiness(state: Any) -> dict[str, Any]:
 
 
 # --- Helpers ---
+
 
 def _get_state(state: Any, key: str) -> Any:
     if hasattr(state, "get"):

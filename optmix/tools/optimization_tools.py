@@ -16,9 +16,26 @@ OPTIMIZE_BUDGET_SCHEMA = ToolSchema(
     name="optimize_budget",
     description="Find the optimal budget allocation across marketing channels that maximizes revenue, respecting per-channel constraints.",
     parameters=[
-        ToolParameter(name="total_budget", type="number", description="Total budget to allocate across all channels.", required=True),
-        ToolParameter(name="constraints", type="object", description="Per-channel constraints as {channel: {min: X, max: Y}}.", required=False),
-        ToolParameter(name="objective", type="string", description="Optimization objective.", required=False, default="maximize_revenue", enum=["maximize_revenue"]),
+        ToolParameter(
+            name="total_budget",
+            type="number",
+            description="Total budget to allocate across all channels.",
+            required=True,
+        ),
+        ToolParameter(
+            name="constraints",
+            type="object",
+            description="Per-channel constraints as {channel: {min: X, max: Y}}.",
+            required=False,
+        ),
+        ToolParameter(
+            name="objective",
+            type="string",
+            description="Optimization objective.",
+            required=False,
+            default="maximize_revenue",
+            enum=["maximize_revenue"],
+        ),
     ],
     returns_description="Optimal allocation with expected outcome and channel-level details.",
     agent_scope=["optimizer"],
@@ -28,7 +45,12 @@ RUN_SCENARIO_SCHEMA = ToolSchema(
     name="run_scenario",
     description="Run a what-if scenario by applying percentage changes to the current budget allocation.",
     parameters=[
-        ToolParameter(name="changes", type="object", description="Channel percentage changes, e.g. {'tv': -0.30, 'meta_ads': 0.15}. Values are fractions (0.15 = +15%).", required=True),
+        ToolParameter(
+            name="changes",
+            type="object",
+            description="Channel percentage changes, e.g. {'tv': -0.30, 'meta_ads': 0.15}. Values are fractions (0.15 = +15%).",
+            required=True,
+        ),
     ],
     returns_description="Scenario comparison with expected lift/decline.",
     agent_scope=["optimizer"],
@@ -38,7 +60,12 @@ GET_MARGINAL_ROAS_SCHEMA = ToolSchema(
     name="get_marginal_roas",
     description="Calculate marginal ROAS for marketing channels at their current spend level. Shows the return of the next dollar spent.",
     parameters=[
-        ToolParameter(name="channel", type="string", description="Specific channel name, or omit for all channels.", required=False),
+        ToolParameter(
+            name="channel",
+            type="string",
+            description="Specific channel name, or omit for all channels.",
+            required=False,
+        ),
     ],
     returns_description="Marginal ROAS per channel.",
     agent_scope=["optimizer", "modeler"],
@@ -46,6 +73,7 @@ GET_MARGINAL_ROAS_SCHEMA = ToolSchema(
 
 
 # --- Implementations ---
+
 
 def optimize_budget(
     state: Any,
@@ -57,7 +85,11 @@ def optimize_budget(
     """Find optimal budget allocation using fitted model."""
     model = _get_state(state, "fitted_model")
     if model is None:
-        return {"status": "error", "message": "No fitted model found. Run fit_mmm_model first.", "summary": "Cannot optimize: no model."}
+        return {
+            "status": "error",
+            "message": "No fitted model found. Run fit_mmm_model first.",
+            "summary": "Cannot optimize: no model.",
+        }
 
     try:
         from optmix.mmm.optimizer.budget_optimizer import BudgetOptimizer
@@ -92,20 +124,31 @@ def optimize_budget(
             "status": "success",
             "summary": (
                 f"Budget optimized: ${total_budget:,.0f} across {len(result.allocation)} channels. "
-                f"Expected lift: {result.expected_lift_pct:.1f}%" if result.expected_lift_pct else
-                f"Budget optimized: ${total_budget:,.0f} across {len(result.allocation)} channels."
+                f"Expected lift: {result.expected_lift_pct:.1f}%"
+                if result.expected_lift_pct
+                else f"Budget optimized: ${total_budget:,.0f} across {len(result.allocation)} channels."
             ),
             "allocation": allocation_summary,
             "total_budget": total_budget,
             "expected_outcome": round(result.expected_outcome, 4),
-            "expected_lift_pct": round(result.expected_lift_pct, 1) if result.expected_lift_pct else None,
-            "channel_marginal_roas": {ch: round(v, 3) for ch, v in result.channel_marginal_roas.items()},
-            "channel_saturation_pct": {ch: round(v, 1) for ch, v in result.channel_saturation_pct.items()},
+            "expected_lift_pct": round(result.expected_lift_pct, 1)
+            if result.expected_lift_pct
+            else None,
+            "channel_marginal_roas": {
+                ch: round(v, 3) for ch, v in result.channel_marginal_roas.items()
+            },
+            "channel_saturation_pct": {
+                ch: round(v, 1) for ch, v in result.channel_saturation_pct.items()
+            },
             "binding_constraints": result.binding_constraints,
         }
 
     except Exception as e:
-        return {"status": "error", "message": f"Budget optimization failed: {e}", "summary": f"Optimization error: {e}"}
+        return {
+            "status": "error",
+            "message": f"Budget optimization failed: {e}",
+            "summary": f"Optimization error: {e}",
+        }
 
 
 def run_scenario(state: Any, *, changes: dict[str, float]) -> dict[str, Any]:
@@ -116,7 +159,10 @@ def run_scenario(state: Any, *, changes: dict[str, float]) -> dict[str, Any]:
 
     optimal = _get_state(state, "optimal_allocation")
     if optimal is None or not hasattr(optimal, "allocation"):
-        return {"status": "error", "message": "No base allocation found. Run optimize_budget first."}
+        return {
+            "status": "error",
+            "message": "No base allocation found. Run optimize_budget first.",
+        }
 
     try:
         from optmix.mmm.optimizer.budget_optimizer import BudgetOptimizer
@@ -133,14 +179,21 @@ def run_scenario(state: Any, *, changes: dict[str, float]) -> dict[str, Any]:
             "status": "success",
             "summary": (
                 f"Scenario: {', '.join(f'{ch} {v:+.0%}' for ch, v in changes.items())}. "
-                f"Expected lift: {result.expected_lift_pct:.1f}%" if result.expected_lift_pct else
-                f"Scenario simulated with {len(changes)} channel changes."
+                f"Expected lift: {result.expected_lift_pct:.1f}%"
+                if result.expected_lift_pct
+                else f"Scenario simulated with {len(changes)} channel changes."
             ),
-            "base_allocation": {ch: round(v, 0) for ch, v in (result.previous_allocation or {}).items()},
+            "base_allocation": {
+                ch: round(v, 0) for ch, v in (result.previous_allocation or {}).items()
+            },
             "scenario_allocation": {ch: round(v, 0) for ch, v in result.allocation.items()},
             "expected_outcome": round(result.expected_outcome, 4),
-            "previous_outcome": round(result.previous_outcome, 4) if result.previous_outcome else None,
-            "expected_lift_pct": round(result.expected_lift_pct, 1) if result.expected_lift_pct else None,
+            "previous_outcome": round(result.previous_outcome, 4)
+            if result.previous_outcome
+            else None,
+            "expected_lift_pct": round(result.expected_lift_pct, 1)
+            if result.expected_lift_pct
+            else None,
         }
 
     except Exception as e:
@@ -155,7 +208,9 @@ def get_marginal_roas(state: Any, *, channel: str | None = None) -> dict[str, An
 
     try:
         model_result = _get_state(state, "model_result")
-        channels_to_check = [channel] if channel else (model_result.channels if model_result else [])
+        channels_to_check = (
+            [channel] if channel else (model_result.channels if model_result else [])
+        )
 
         marginal_roas = {}
         for ch in channels_to_check:
@@ -182,6 +237,7 @@ def get_marginal_roas(state: Any, *, channel: str | None = None) -> dict[str, An
 
 
 # --- Helpers ---
+
 
 def _get_state(state: Any, key: str) -> Any:
     if hasattr(state, "get"):

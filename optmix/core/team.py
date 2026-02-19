@@ -43,10 +43,12 @@ class OptMixTeam:
 
         # Initialize shared state
         from optmix.core.state import SharedState
+
         self._state = SharedState()
 
         # Initialize tool registry
         from optmix.tools import create_default_registry
+
         self._tool_registry = create_default_registry()
 
         # Initialize LLM client (lazy — only when needed)
@@ -237,11 +239,13 @@ class OptMixTeam:
         agent = self._agents[target_agent]
         response = self._execute_agent(agent, message)
 
-        self._history.append({
-            "role": "assistant",
-            "agent": target_agent,
-            "content": response,
-        })
+        self._history.append(
+            {
+                "role": "assistant",
+                "agent": target_agent,
+                "content": response,
+            }
+        )
         return response
 
     def invoke(self, agent_name: str, message: str, **kwargs: Any) -> str:
@@ -294,6 +298,7 @@ class OptMixTeam:
             self._state.set("raw_data", df, source_agent="user")
         elif sample_dataset:
             from optmix.data.samples import load_sample
+
             df = load_sample(sample_dataset)
             self._state.set("raw_data", df, source_agent="user")
 
@@ -331,11 +336,13 @@ class OptMixTeam:
         """
         if sample:
             from optmix.data.samples import load_sample
+
             df = load_sample(sample)
             self._state.set("raw_data", df, source_agent="user")
             return f"Loaded sample dataset '{sample}': {len(df)} rows, {len(df.columns)} columns"
         elif path:
             import pandas as pd
+
             df = pd.read_csv(path)
             self._state.set("raw_data", df, source_agent="user")
             return f"Loaded '{path}': {len(df)} rows, {len(df.columns)} columns"
@@ -363,9 +370,7 @@ class OptMixTeam:
         recent_history = self._history[-10:] if len(self._history) > 10 else self._history
         # Filter to just role/content for the LLM
         conv_history = [
-            {"role": h["role"], "content": h["content"]}
-            for h in recent_history
-            if h.get("content")
+            {"role": h["role"], "content": h["content"]} for h in recent_history if h.get("content")
         ]
 
         response = executor.run(
@@ -395,7 +400,4 @@ class OptMixTeam:
         return compiled
 
     def __repr__(self) -> str:
-        return (
-            f"OptMixTeam(llm='{self.llm}', "
-            f"agents=[{', '.join(self.agents)}])"
-        )
+        return f"OptMixTeam(llm='{self.llm}', agents=[{', '.join(self.agents)}])"

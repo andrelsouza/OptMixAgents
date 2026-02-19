@@ -72,7 +72,9 @@ class RidgeMMM(BaseMMM):
         # Auto-detect channels if not specified
         if channels is None:
             exclude = {target, date_col} | set(controls or [])
-            channels = [c for c in data.select_dtypes(include=[np.number]).columns if c not in exclude]
+            channels = [
+                c for c in data.select_dtypes(include=[np.number]).columns if c not in exclude
+            ]
         self._channels = channels
         self._controls = controls or []
 
@@ -118,11 +120,11 @@ class RidgeMMM(BaseMMM):
         predictions = self._model.predict(X)
         residuals = y - predictions
 
-        ss_res = np.sum(residuals ** 2)
+        ss_res = np.sum(residuals**2)
         ss_tot = np.sum((y - np.mean(y)) ** 2)
         r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
         mape = float(np.mean(np.abs(residuals / np.where(y != 0, y, 1)))) * 100
-        rmse = float(np.sqrt(np.mean(residuals ** 2)))
+        rmse = float(np.sqrt(np.mean(residuals**2)))
 
         # Channel ROAS
         channel_roas = {}

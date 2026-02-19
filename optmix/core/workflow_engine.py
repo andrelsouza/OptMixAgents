@@ -138,10 +138,7 @@ class WorkflowEngine:
 
     def list_workflows(self) -> list[str]:
         """List available workflow names."""
-        return [
-            p.stem
-            for p in sorted(self.workflows_dir.glob("*.yaml"))
-        ]
+        return [p.stem for p in sorted(self.workflows_dir.glob("*.yaml"))]
 
     def load_workflow(self, name: str) -> WorkflowDefinition:
         """Load and parse a workflow YAML file."""
@@ -164,21 +161,25 @@ class WorkflowEngine:
             # Phased workflow (like full_measurement_cycle)
             for phase_data in raw_phases:
                 steps = [self._parse_step(s) for s in phase_data.get("steps", [])]
-                phases.append(WorkflowPhase(
-                    name=phase_data.get("name", ""),
-                    title=phase_data.get("title", ""),
-                    description=phase_data.get("description", ""),
-                    steps=steps,
-                ))
+                phases.append(
+                    WorkflowPhase(
+                        name=phase_data.get("name", ""),
+                        title=phase_data.get("title", ""),
+                        description=phase_data.get("description", ""),
+                        steps=steps,
+                    )
+                )
         elif raw_steps:
             # Flat workflow (like quick_optimization)
             steps = [self._parse_step(s) for s in raw_steps]
-            phases.append(WorkflowPhase(
-                name="main",
-                title=metadata.get("title", name),
-                description=metadata.get("description", ""),
-                steps=steps,
-            ))
+            phases.append(
+                WorkflowPhase(
+                    name="main",
+                    title=metadata.get("title", name),
+                    description=metadata.get("description", ""),
+                    steps=steps,
+                )
+            )
 
         return WorkflowDefinition(
             name=metadata.get("name", name),
@@ -350,19 +351,23 @@ class WorkflowEngine:
             parts.append("")
 
         if user_context:
-            parts.extend([
-                "### User Context",
-                "",
-                user_context,
-                "",
-            ])
+            parts.extend(
+                [
+                    "### User Context",
+                    "",
+                    user_context,
+                    "",
+                ]
+            )
 
-        parts.extend([
-            "### Instructions",
-            "",
-            "Use your available tools to complete this step. "
-            "Provide a clear, detailed response with your findings and recommendations.",
-        ])
+        parts.extend(
+            [
+                "### Instructions",
+                "",
+                "Use your available tools to complete this step. "
+                "Provide a clear, detailed response with your findings and recommendations.",
+            ]
+        )
 
         return "\n".join(parts)
 

@@ -76,11 +76,15 @@ class TestLLMRouting:
         from optmix.core.llm import MockLLMClient
 
         mock = MockLLMClient()
-        mock.add_response(json.dumps({
-            "agent": "modeler",
-            "confidence": "high",
-            "reasoning": "User wants to fit a model",
-        }))
+        mock.add_response(
+            json.dumps(
+                {
+                    "agent": "modeler",
+                    "confidence": "high",
+                    "reasoning": "User wants to fit a model",
+                }
+            )
+        )
 
         router = OrchestratorRouter(agents=agents, llm_client=mock)
         decision = router.route("Fit a model on my data")
@@ -104,11 +108,15 @@ class TestLLMRouting:
         from optmix.core.llm import MockLLMClient
 
         mock = MockLLMClient()
-        mock.add_response(json.dumps({
-            "agent": "unknown_agent_xyz",
-            "confidence": "high",
-            "reasoning": "Test",
-        }))
+        mock.add_response(
+            json.dumps(
+                {
+                    "agent": "unknown_agent_xyz",
+                    "confidence": "high",
+                    "reasoning": "Test",
+                }
+            )
+        )
 
         router = OrchestratorRouter(agents=agents, llm_client=mock)
         decision = router.route("Fit a Bayesian model")
@@ -148,11 +156,15 @@ class TestRoutingWithState:
         from optmix.core.state import SharedState
 
         mock = MockLLMClient()
-        mock.add_response(json.dumps({
-            "agent": "analyst",
-            "confidence": "high",
-            "reasoning": "Data task with state context",
-        }))
+        mock.add_response(
+            json.dumps(
+                {
+                    "agent": "analyst",
+                    "confidence": "high",
+                    "reasoning": "Data task with state context",
+                }
+            )
+        )
 
         state = SharedState()
         state.set("raw_data", "some_data", source_agent="test")

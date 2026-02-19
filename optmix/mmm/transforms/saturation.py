@@ -40,14 +40,12 @@ def hill_saturation(spend: np.ndarray, half_sat: float, slope: float = 1.0) -> n
         raise ValueError(f"half_sat must be positive, got {half_sat}")
 
     spend_safe = np.maximum(spend, 0)
-    numerator = spend_safe ** slope
-    denominator = spend_safe ** slope + half_sat ** slope
+    numerator = spend_safe**slope
+    denominator = spend_safe**slope + half_sat**slope
     return np.where(denominator > 0, numerator / denominator, 0.0)
 
 
-def logistic_saturation(
-    spend: np.ndarray, midpoint: float, steepness: float = 1.0
-) -> np.ndarray:
+def logistic_saturation(spend: np.ndarray, midpoint: float, steepness: float = 1.0) -> np.ndarray:
     """
     Logistic (sigmoid) saturation curve.
 

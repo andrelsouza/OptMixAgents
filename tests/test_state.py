@@ -15,7 +15,6 @@ def state() -> SharedState:
 
 
 class TestBasicCRUD:
-
     def test_set_and_get(self, state: SharedState) -> None:
         state.set("raw_data", {"rows": 100}, source_agent="analyst")
         assert state.get("raw_data") == {"rows": 100}
@@ -52,7 +51,6 @@ class TestBasicCRUD:
 
 
 class TestHistory:
-
     def test_empty_history(self, state: SharedState) -> None:
         assert state.history("nonexistent") == []
 
@@ -72,7 +70,6 @@ class TestHistory:
 
 
 class TestAutoSummary:
-
     def test_dataframe_summary(self, state: SharedState) -> None:
         df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
         state.set("raw_data", df)
@@ -100,8 +97,11 @@ class TestAutoSummary:
 
     def test_model_result_summary(self, state: SharedState) -> None:
         result = ModelResult(
-            model_type="RidgeMMM", target_variable="revenue",
-            date_column="date", channels=["tv", "search"], n_observations=104,
+            model_type="RidgeMMM",
+            target_variable="revenue",
+            date_column="date",
+            channels=["tv", "search"],
+            n_observations=104,
             r_squared=0.87,
         )
         state.set("model", result)
@@ -113,7 +113,8 @@ class TestAutoSummary:
     def test_optimization_result_summary(self, state: SharedState) -> None:
         result = OptimizationResult(
             allocation={"tv": 50000, "search": 30000},
-            total_budget=80000, expected_lift_pct=12.5,
+            total_budget=80000,
+            expected_lift_pct=12.5,
         )
         state.set("alloc", result)
         entry = state.get_entry("alloc")
@@ -123,7 +124,6 @@ class TestAutoSummary:
 
 
 class TestContextForAgent:
-
     def test_empty_state(self, state: SharedState) -> None:
         ctx = state.get_context_for_agent("optimizer")
         assert "No relevant state" in ctx
@@ -143,7 +143,6 @@ class TestContextForAgent:
 
 
 class TestClear:
-
     def test_clears_everything(self, state: SharedState) -> None:
         state.set("a", 1)
         state.set("b", 2)
@@ -155,7 +154,6 @@ class TestClear:
 
 
 class TestToSummary:
-
     def test_empty(self, state: SharedState) -> None:
         assert "empty" in state.to_summary()
 

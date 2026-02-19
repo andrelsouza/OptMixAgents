@@ -76,7 +76,9 @@ def _generate_ecommerce(seed: int = 42) -> pd.DataFrame:
     week_idx = np.arange(n_weeks)
 
     # Seasonality (annual cycle with Q4 spike)
-    seasonality = 1 + 0.15 * np.sin(2 * np.pi * week_idx / 52) + 0.10 * np.sin(4 * np.pi * week_idx / 52)
+    seasonality = (
+        1 + 0.15 * np.sin(2 * np.pi * week_idx / 52) + 0.10 * np.sin(4 * np.pi * week_idx / 52)
+    )
     # Q4 holiday boost
     month = dates.month
     q4_boost = np.where((month >= 11) | (month == 1), 1.2, 1.0)

@@ -119,7 +119,9 @@ class TestTeamOfflineMode:
         response = team.invoke("analyst", "Validate data")
         assert isinstance(response, str)
         # Should mention the agent or tools
-        assert "analyst" in response.lower() or "api" in response.lower() or "key" in response.lower()
+        assert (
+            "analyst" in response.lower() or "api" in response.lower() or "key" in response.lower()
+        )
 
 
 class TestTeamRun:

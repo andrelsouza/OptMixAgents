@@ -131,17 +131,21 @@ class AgentExecutor:
 
                 result = self._execute_tool(tool_call.name, tool_call.input)
 
-                tool_calls_log.append({
-                    "tool": tool_call.name,
-                    "input": tool_call.input,
-                    "result_summary": result.get("summary", str(result)[:200]),
-                })
+                tool_calls_log.append(
+                    {
+                        "tool": tool_call.name,
+                        "input": tool_call.input,
+                        "result_summary": result.get("summary", str(result)[:200]),
+                    }
+                )
 
-                tool_results.append({
-                    "type": "tool_result",
-                    "tool_use_id": tool_call.id,
-                    "content": self._serialize_tool_result(result),
-                })
+                tool_results.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": tool_call.id,
+                        "content": self._serialize_tool_result(result),
+                    }
+                )
 
             # Add all tool results as a single user message
             messages.append({"role": "user", "content": tool_results})
@@ -152,13 +156,15 @@ class AgentExecutor:
             self.agent.metadata.name,
             self.max_rounds,
         )
-        messages.append({
-            "role": "user",
-            "content": (
-                "You've used the maximum number of tool calls. "
-                "Please provide your final answer now based on the information gathered so far."
-            ),
-        })
+        messages.append(
+            {
+                "role": "user",
+                "content": (
+                    "You've used the maximum number of tool calls. "
+                    "Please provide your final answer now based on the information gathered so far."
+                ),
+            }
+        )
 
         response = self.llm.chat(system=system_prompt, messages=messages, tools=None)
         for k, v in response.usage.items():
@@ -194,23 +200,27 @@ class AgentExecutor:
         parts.append("")
 
         # Add tool usage instructions
-        parts.extend([
-            "## Tool Usage Instructions",
-            "",
-            "You have tools available to perform analysis. Use them to answer the user's question.",
-            "Always call the relevant tools to get real data — never make up numbers or results.",
-            "After using tools, synthesize the results into a clear, actionable response.",
-            "Speak as your persona would — use your communication style and domain expertise.",
-            "",
-        ])
+        parts.extend(
+            [
+                "## Tool Usage Instructions",
+                "",
+                "You have tools available to perform analysis. Use them to answer the user's question.",
+                "Always call the relevant tools to get real data — never make up numbers or results.",
+                "After using tools, synthesize the results into a clear, actionable response.",
+                "Speak as your persona would — use your communication style and domain expertise.",
+                "",
+            ]
+        )
 
         if extra_context:
-            parts.extend([
-                "## Additional Context",
-                "",
-                extra_context,
-                "",
-            ])
+            parts.extend(
+                [
+                    "## Additional Context",
+                    "",
+                    extra_context,
+                    "",
+                ]
+            )
 
         return "\n".join(parts)
 
@@ -242,12 +252,14 @@ class AgentExecutor:
             blocks.append({"type": "text", "text": response.content})
 
         for tc in response.tool_calls:
-            blocks.append({
-                "type": "tool_use",
-                "id": tc.id,
-                "name": tc.name,
-                "input": tc.input,
-            })
+            blocks.append(
+                {
+                    "type": "tool_use",
+                    "id": tc.id,
+                    "name": tc.name,
+                    "input": tc.input,
+                }
+            )
 
         return blocks
 

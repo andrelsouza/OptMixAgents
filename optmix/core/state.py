@@ -220,10 +220,7 @@ class SharedState:
             target_keys = list(snapshot.keys())
 
         if not target_keys:
-            return (
-                f"[Shared State for {agent_name}]\n"
-                "No relevant state is available yet."
-            )
+            return f"[Shared State for {agent_name}]\nNo relevant state is available yet."
 
         lines: list[str] = [
             f"[Shared State for {agent_name}]",

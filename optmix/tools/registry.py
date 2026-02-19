@@ -60,11 +60,7 @@ class ToolRegistry:
 
     def list_for_agent(self, agent_name: str) -> list[ToolSchema]:
         """List all tool schemas available to a specific agent."""
-        return [
-            schema
-            for schema in self._schemas.values()
-            if agent_name in schema.agent_scope
-        ]
+        return [schema for schema in self._schemas.values() if agent_name in schema.agent_scope]
 
     def execute(self, name: str, arguments: dict[str, Any], state: Any) -> dict[str, Any]:
         """Execute a tool by name with given arguments and state."""

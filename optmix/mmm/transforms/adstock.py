@@ -81,9 +81,7 @@ def weibull_adstock(
     return result
 
 
-def delayed_adstock(
-    spend: np.ndarray, decay: float = 0.5, delay: int = 1
-) -> np.ndarray:
+def delayed_adstock(spend: np.ndarray, decay: float = 0.5, delay: int = 1) -> np.ndarray:
     """
     Geometric adstock with a fixed delay before effect begins.
 

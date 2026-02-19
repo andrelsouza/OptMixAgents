@@ -89,7 +89,9 @@ class BudgetOptimizer:
 
         # Initial guess: proportional to current ROAS or equal split
         if current_allocation:
-            x0 = np.array([current_allocation.get(ch, total_budget / n_channels) for ch in channels])
+            x0 = np.array(
+                [current_allocation.get(ch, total_budget / n_channels) for ch in channels]
+            )
         else:
             x0 = np.full(n_channels, total_budget / n_channels)
 
@@ -98,7 +100,10 @@ class BudgetOptimizer:
 
         # Bounds
         bounds = [
-            (channel_constraints[ch].min_spend, min(channel_constraints[ch].max_spend, total_budget))
+            (
+                channel_constraints[ch].min_spend,
+                min(channel_constraints[ch].max_spend, total_budget),
+            )
             for ch in channels
         ]
 

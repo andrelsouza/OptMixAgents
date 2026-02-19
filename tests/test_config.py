@@ -59,11 +59,15 @@ class TestLoadConfig:
         assert cfg.api_key == ""
 
     def test_loads_valid_config(self, tmp_config):
-        tmp_config.write_text(yaml.dump({
-            "provider": "openai",
-            "model": "gpt-4o",
-            "api_key": "sk-openai-test",
-        }))
+        tmp_config.write_text(
+            yaml.dump(
+                {
+                    "provider": "openai",
+                    "model": "gpt-4o",
+                    "api_key": "sk-openai-test",
+                }
+            )
+        )
         cfg = load_config(tmp_config)
         assert cfg.provider == "openai"
         assert cfg.model == "gpt-4o"
@@ -133,7 +137,10 @@ class TestResolveConfig:
         # Clear env vars that could interfere
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
         monkeypatch.delenv("OPTMIX_API_KEY", raising=False)
-        save_config(OptMixConfig(provider="anthropic", model="claude-3-haiku", api_key="file-key"), tmp_config)
+        save_config(
+            OptMixConfig(provider="anthropic", model="claude-3-haiku", api_key="file-key"),
+            tmp_config,
+        )
         cfg = resolve_config(config_path=tmp_config)
         assert cfg.provider == "anthropic"
         assert cfg.model == "claude-3-haiku"

@@ -1,6 +1,5 @@
 """Tests for inter-agent delegation — agents collaborating via delegate_to_agent tool."""
 
-
 import pytest
 
 from optmix.core.llm import MockLLMClient, ToolCall
@@ -125,7 +124,10 @@ class TestDelegationInToolLoop:
                 ToolCall(
                     id="call_1",
                     name="delegate_to_agent",
-                    input={"agent_name": "modeler", "task": "What MMM approaches do you recommend?"},
+                    input={
+                        "agent_name": "modeler",
+                        "task": "What MMM approaches do you recommend?",
+                    },
                 )
             ],
         )

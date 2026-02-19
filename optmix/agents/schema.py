@@ -115,10 +115,7 @@ class AgentLoader:
 
     def list_agents(self) -> list[str]:
         """List all available agent names."""
-        return [
-            p.stem.replace(".agent", "")
-            for p in sorted(self.agents_dir.glob("*.agent.yaml"))
-        ]
+        return [p.stem.replace(".agent", "") for p in sorted(self.agents_dir.glob("*.agent.yaml"))]
 
     def compile_to_markdown(self, agent_name: str, output_dir: str | Path | None = None) -> Path:
         """Compile a YAML agent definition to an IDE-ready Markdown file."""

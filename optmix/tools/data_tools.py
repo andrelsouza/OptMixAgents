@@ -30,7 +30,8 @@ LOAD_SAMPLE_DATA_SCHEMA = ToolSchema(
     description="Load a built-in sample marketing dataset for testing or learning.",
     parameters=[
         ToolParameter(
-            name="dataset_name", type="string",
+            name="dataset_name",
+            type="string",
             description="Name of the sample dataset.",
             enum=["ecommerce", "retail_chain", "saas_b2b"],
         ),
@@ -66,6 +67,7 @@ DESCRIBE_CHANNELS_SCHEMA = ToolSchema(
 
 # --- Implementations ---
 
+
 def load_csv_data(state: Any, *, file_path: str) -> dict[str, Any]:
     """Load a CSV file and store in state['raw_data']."""
     try:
@@ -86,6 +88,7 @@ def load_sample_data(state: Any, *, dataset_name: str = "ecommerce") -> dict[str
     """Load a built-in sample dataset."""
     try:
         from optmix.data.samples import load_sample
+
         df = load_sample(dataset_name)
         _set_state(state, "raw_data", df, "analyst")
         return {
@@ -104,62 +107,91 @@ def validate_data(state: Any) -> dict[str, Any]:
     """Run data quality checks on raw_data."""
     df = _get_state(state, "raw_data")
     if df is None:
-        return {"status": "error", "message": "No data loaded. Use load_csv_data or load_sample_data first."}
+        return {
+            "status": "error",
+            "message": "No data loaded. Use load_csv_data or load_sample_data first.",
+        }
 
     checks: list[dict[str, Any]] = []
 
     # 1. Null check
     null_counts = df.isnull().sum()
     null_cols = null_counts[null_counts > 0]
-    checks.append({
-        "check": "missing_values",
-        "passed": len(null_cols) == 0,
-        "detail": "No missing values found" if len(null_cols) == 0 else f"Missing values in: {dict(null_cols)}",
-    })
+    checks.append(
+        {
+            "check": "missing_values",
+            "passed": len(null_cols) == 0,
+            "detail": "No missing values found"
+            if len(null_cols) == 0
+            else f"Missing values in: {dict(null_cols)}",
+        }
+    )
 
     # 2. Numeric types check
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    checks.append({
-        "check": "numeric_columns",
-        "passed": len(numeric_cols) >= 2,
-        "detail": f"{len(numeric_cols)} numeric columns found",
-    })
+    checks.append(
+        {
+            "check": "numeric_columns",
+            "passed": len(numeric_cols) >= 2,
+            "detail": f"{len(numeric_cols)} numeric columns found",
+        }
+    )
 
     # 3. Date column check
     date_cols = [c for c in df.columns if "date" in c.lower()]
-    checks.append({
-        "check": "date_column",
-        "passed": len(date_cols) > 0,
-        "detail": f"Date column(s) found: {date_cols}" if date_cols else "No date column detected",
-    })
+    checks.append(
+        {
+            "check": "date_column",
+            "passed": len(date_cols) > 0,
+            "detail": f"Date column(s) found: {date_cols}"
+            if date_cols
+            else "No date column detected",
+        }
+    )
 
     # 4. Negative values in spend columns
-    spend_cols = [c for c in numeric_cols if c not in ["revenue", "pipeline_generated", "conversions"]]
+    spend_cols = [
+        c for c in numeric_cols if c not in ["revenue", "pipeline_generated", "conversions"]
+    ]
     neg_cols = [c for c in spend_cols if (df[c] < 0).any()]
-    checks.append({
-        "check": "no_negative_spend",
-        "passed": len(neg_cols) == 0,
-        "detail": "No negative spend values" if not neg_cols else f"Negative values in: {neg_cols}",
-    })
+    checks.append(
+        {
+            "check": "no_negative_spend",
+            "passed": len(neg_cols) == 0,
+            "detail": "No negative spend values"
+            if not neg_cols
+            else f"Negative values in: {neg_cols}",
+        }
+    )
 
     # 5. Sufficient rows
-    checks.append({
-        "check": "sufficient_observations",
-        "passed": len(df) >= 52,
-        "detail": f"{len(df)} observations (minimum 52 recommended)",
-    })
+    checks.append(
+        {
+            "check": "sufficient_observations",
+            "passed": len(df) >= 52,
+            "detail": f"{len(df)} observations (minimum 52 recommended)",
+        }
+    )
 
     # 6. Outlier detection (values > 5 std from mean)
     outlier_cols = []
     for col in numeric_cols:
-        z_scores = np.abs((df[col] - df[col].mean()) / df[col].std()) if df[col].std() > 0 else pd.Series([0])
+        z_scores = (
+            np.abs((df[col] - df[col].mean()) / df[col].std())
+            if df[col].std() > 0
+            else pd.Series([0])
+        )
         if (z_scores > 5).any():
             outlier_cols.append(col)
-    checks.append({
-        "check": "outlier_check",
-        "passed": len(outlier_cols) == 0,
-        "detail": "No extreme outliers" if not outlier_cols else f"Potential outliers in: {outlier_cols}",
-    })
+    checks.append(
+        {
+            "check": "outlier_check",
+            "passed": len(outlier_cols) == 0,
+            "detail": "No extreme outliers"
+            if not outlier_cols
+            else f"Potential outliers in: {outlier_cols}",
+        }
+    )
 
     # Store validated data
     _set_state(state, "validated_data", df, "analyst")
@@ -191,7 +223,13 @@ def run_eda(state: Any) -> dict[str, Any]:
     # Identify target and channel columns
     target_candidates = ["revenue", "pipeline_generated", "conversions", "sales"]
     target_col = next((c for c in target_candidates if c in df.columns), None)
-    control_candidates = ["avg_price", "promo", "store_count", "competitor_promo", "sales_headcount"]
+    control_candidates = [
+        "avg_price",
+        "promo",
+        "store_count",
+        "competitor_promo",
+        "sales_headcount",
+    ]
     controls = [c for c in control_candidates if c in df.columns]
     channels = [c for c in numeric_cols if c not in [target_col] + controls]
 
@@ -250,8 +288,17 @@ def describe_channels(state: Any) -> dict[str, Any]:
         return {"status": "error", "message": "No data available."}
 
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    exclude = {"revenue", "pipeline_generated", "conversions", "sales",
-               "avg_price", "promo", "store_count", "competitor_promo", "sales_headcount"}
+    exclude = {
+        "revenue",
+        "pipeline_generated",
+        "conversions",
+        "sales",
+        "avg_price",
+        "promo",
+        "store_count",
+        "competitor_promo",
+        "sales_headcount",
+    }
     channels = [c for c in numeric_cols if c not in exclude]
 
     total_spend = sum(float(df[ch].sum()) for ch in channels)
@@ -279,6 +326,7 @@ def describe_channels(state: Any) -> dict[str, Any]:
 
 
 # --- Helpers ---
+
 
 def _get_state(state: Any, key: str) -> Any:
     if hasattr(state, "get"):
