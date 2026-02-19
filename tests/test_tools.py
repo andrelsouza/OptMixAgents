@@ -272,3 +272,25 @@ class TestStrategyTools:
         result = assess_data_readiness(state)
         assert result["status"] == "success"
         assert result["readiness"] == "ready"
+
+    def test_assess_data_readiness_with_invalid_date(self):
+        """Test that assess_data_readiness handles invalid date formats gracefully."""
+        import pandas as pd
+        from optmix.tools.strategy_tools import assess_data_readiness
+
+        # Create a dataframe with an invalid date column
+        state: dict = {}
+        state["raw_data"] = pd.DataFrame({
+            "date": ["not-a-date", "another-bad-date", "2023-13-45"],  # Invalid dates
+            "revenue": [100, 200, 300],
+            "spend_channel_1": [10, 20, 30],
+            "spend_channel_2": [15, 25, 35],
+        })
+
+        # This should not raise an UnboundLocalError
+        result = assess_data_readiness(state)
+        assert result["status"] == "success"
+        # Should fail the date range check but not crash
+        date_range_check = next(c for c in result["checklist"] if c["criterion"] == "date_range_coverage")
+        assert date_range_check["passed"] == False
+        assert "Insufficient date range" in date_range_check["detail"]
