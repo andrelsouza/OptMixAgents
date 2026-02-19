@@ -114,10 +114,10 @@ class AnthropicClient(LLMClient):
                 api_key=self.api_key,
                 max_retries=max_retries,
             )
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "The 'anthropic' package is required. Install with: pip install anthropic"
-            )
+            ) from err
 
     def provider_name(self) -> str:
         return "anthropic"
@@ -221,10 +221,10 @@ class OpenAIClient(LLMClient):
                 api_key=self.api_key,
                 max_retries=max_retries,
             )
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "The 'openai' package is required. Install with: pip install openai"
-            )
+            ) from err
 
     def provider_name(self) -> str:
         return "openai"

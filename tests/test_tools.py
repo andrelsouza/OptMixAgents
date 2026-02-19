@@ -105,7 +105,7 @@ class TestDataTools:
         assert "validated_data" in state
 
     def test_run_eda(self):
-        from optmix.tools.data_tools import load_sample_data, validate_data, run_eda
+        from optmix.tools.data_tools import load_sample_data, run_eda, validate_data
         state: dict = {}
         load_sample_data(state, dataset_name="ecommerce")
         validate_data(state)
@@ -115,7 +115,7 @@ class TestDataTools:
         assert "eda_report" in state
 
     def test_describe_channels(self):
-        from optmix.tools.data_tools import load_sample_data, describe_channels
+        from optmix.tools.data_tools import describe_channels, load_sample_data
         state: dict = {}
         load_sample_data(state, dataset_name="ecommerce")
         result = describe_channels(state)

@@ -213,10 +213,7 @@ class BayesianMMM(BaseMMM):
             # The model scales channel data, so we apply saturation to
             # the normalized spend range.
             scaler = self._get_channel_scaler(ch)
-            if scaler > 0:
-                spends_scaled = spends / scaler
-            else:
-                spends_scaled = spends
+            spends_scaled = spends / scaler if scaler > 0 else spends
 
             responses = 1.0 - np.exp(-lam * spends_scaled)
 

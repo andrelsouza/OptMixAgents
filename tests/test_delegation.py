@@ -1,10 +1,9 @@
 """Tests for inter-agent delegation — agents collaborating via delegate_to_agent tool."""
 
-from unittest.mock import MagicMock, patch
 
 import pytest
 
-from optmix.core.llm import LLMResponse, MockLLMClient, ToolCall
+from optmix.core.llm import MockLLMClient, ToolCall
 
 
 @pytest.fixture()

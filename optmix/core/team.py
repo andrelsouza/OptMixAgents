@@ -346,7 +346,7 @@ class OptMixTeam:
         """Execute an agent with the given message via LLM tool-calling loop."""
         try:
             llm = self._get_llm_client()
-        except (ValueError, ImportError) as e:
+        except (ValueError, ImportError):
             # Graceful fallback when no LLM is available
             return self._execute_agent_offline(agent, message)
 

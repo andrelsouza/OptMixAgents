@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-
 import pandas as pd
 import pytest
 
-from optmix.core.state import SharedState, StateEntry
+from optmix.core.state import SharedState
 from optmix.mmm.models.base import ModelResult, OptimizationResult
 
 

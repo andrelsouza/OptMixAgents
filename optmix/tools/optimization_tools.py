@@ -192,7 +192,7 @@ def _get_state(state: Any, key: str) -> Any:
 
 
 def _set_state(state: Any, key: str, value: Any, agent: str) -> None:
-    if hasattr(state, "set") and callable(getattr(state, "set")):
+    if hasattr(state, "set") and callable(state.set):
         try:
             state.set(key, value, source_agent=agent)
         except TypeError:

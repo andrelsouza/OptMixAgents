@@ -119,7 +119,7 @@ class TestBayesianPosterior:
 
     def test_learned_params_have_hdi(self, fitted_result):
         _, result = fitted_result
-        for ch, params in result.adstock_params.items():
+        for _ch, params in result.adstock_params.items():
             if "decay_hdi_low" in params:
                 assert params["decay_hdi_low"] <= params["decay"]
                 assert params["decay_hdi_high"] >= params["decay"]
@@ -138,7 +138,7 @@ class TestBayesianCurves:
     def test_saturation_curves_shape(self, fitted_result):
         model, _ = fitted_result
         curves = model.get_saturation_curves()
-        for ch, df in curves.items():
+        for _ch, df in curves.items():
             assert "spend" in df.columns
             assert "response" in df.columns
             assert len(df) == 200

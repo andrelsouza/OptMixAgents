@@ -1,6 +1,5 @@
 """Tests for OptMixConfig — load, save, resolve with precedence chain."""
 
-import os
 import stat
 
 import pytest

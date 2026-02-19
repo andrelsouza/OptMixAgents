@@ -94,10 +94,7 @@ def generate_markdown_report(state: Any, **params: Any) -> dict[str, Any]:
 
     # Load and render template
     template_path = TEMPLATES_DIR / "executive-report.md"
-    if template_path.exists():
-        template_text = template_path.read_text()
-    else:
-        template_text = _fallback_template()
+    template_text = template_path.read_text() if template_path.exists() else _fallback_template()
 
     try:
         template = Template(template_text, undefined=_SilentUndefined)
@@ -475,7 +472,7 @@ def _chart_contributions(model_result: Any, plt: Any) -> Any:
     ax.set_title("Channel Contribution Share")
     ax.invert_yaxis()
 
-    for bar, val in zip(bars, shares):
+    for bar, val in zip(bars, shares, strict=True):
         ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height() / 2,
                 f"{val:.1f}%", va="center", fontsize=9)
 
@@ -548,7 +545,7 @@ def _chart_roas(model_result: Any, plt: Any) -> Any:
     ax.invert_yaxis()
     ax.legend()
 
-    for bar, val in zip(bars, roas_vals):
+    for bar, val in zip(bars, roas_vals, strict=True):
         ax.text(bar.get_width() + 0.05, bar.get_y() + bar.get_height() / 2,
                 f"{val:.2f}x", va="center", fontsize=9)
 

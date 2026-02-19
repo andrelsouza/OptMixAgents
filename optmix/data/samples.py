@@ -134,7 +134,7 @@ def _generate_retail(seed: int = 123) -> pd.DataFrame:
     seasonality = 1 + 0.2 * np.sin(2 * np.pi * week_idx / 52)
     revenue = base * seasonality + rng.normal(0, 20000, n_weeks)
 
-    for ch, spend in channels.items():
+    for _ch, spend in channels.items():
         contribution = spend * rng.uniform(0.5, 2.0) * 0.01
         revenue += contribution
 
@@ -171,7 +171,7 @@ def _generate_saas(seed: int = 456) -> pd.DataFrame:
     trend = 1 + 0.003 * week_idx
     pipeline = base_pipeline * trend + rng.normal(0, 15000, n_weeks)
 
-    for ch, spend in channels.items():
+    for _ch, spend in channels.items():
         # B2B has longer adstock
         adstocked = geometric_adstock(spend, decay=0.6)
         pipeline += adstocked * rng.uniform(0.01, 0.05) * 0.1

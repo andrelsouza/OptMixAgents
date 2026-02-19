@@ -7,14 +7,12 @@ respecting real-world constraints like minimum spends and channel caps.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 import numpy as np
 from scipy.optimize import minimize
 
 from optmix.mmm.models.base import BaseMMM, OptimizationResult
-from optmix.mmm.transforms.saturation import hill_saturation
 
 
 @dataclass

@@ -114,7 +114,7 @@ def validate_data(state: Any) -> dict[str, Any]:
     checks.append({
         "check": "missing_values",
         "passed": len(null_cols) == 0,
-        "detail": f"No missing values found" if len(null_cols) == 0 else f"Missing values in: {dict(null_cols)}",
+        "detail": "No missing values found" if len(null_cols) == 0 else f"Missing values in: {dict(null_cols)}",
     })
 
     # 2. Numeric types check
@@ -289,7 +289,7 @@ def _get_state(state: Any, key: str) -> Any:
 
 
 def _set_state(state: Any, key: str, value: Any, agent: str) -> None:
-    if hasattr(state, "set") and callable(getattr(state, "set")):
+    if hasattr(state, "set") and callable(state.set):
         try:
             state.set(key, value, source_agent=agent)
         except TypeError:

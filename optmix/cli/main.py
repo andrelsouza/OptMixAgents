@@ -13,7 +13,6 @@ Usage:
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from typing import Any
 
 try:
@@ -116,7 +115,7 @@ def setup() -> None:
 
     # Step 3: Choose model
     default_model = DEFAULT_MODELS.get(provider, "")
-    console.print(f"\n[bold]Step 3/3:[/bold] Choose model (press Enter for default)\n")
+    console.print("\n[bold]Step 3/3:[/bold] Choose model (press Enter for default)\n")
     model = click.prompt("Model", default=default_model, show_default=True)
 
     # Save

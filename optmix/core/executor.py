@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from optmix.agents.schema import AgentDefinition
-from optmix.core.llm import LLMClient, LLMResponse, build_tool_result_message
+from optmix.core.llm import LLMClient, LLMResponse
 
 logger = logging.getLogger(__name__)
 
