@@ -101,15 +101,16 @@ class BayesianMMM(BaseMMM):
         if channels is None:
             exclude = {target, date_col} | set(controls or [])
             channels = [
-                c for c in data.select_dtypes(include=[np.number]).columns
-                if c not in exclude
+                c for c in data.select_dtypes(include=[np.number]).columns if c not in exclude
             ]
         self._channels = channels
         self._controls = controls or []
 
         logger.info(
             "Fitting BayesianMMM: %d channels, %d controls, %d observations",
-            len(channels), len(self._controls), len(data),
+            len(channels),
+            len(self._controls),
+            len(data),
         )
 
         # Construct PyMC-Marketing MMM
@@ -142,10 +143,13 @@ class BayesianMMM(BaseMMM):
         # Fit
         logger.info(
             "Starting MCMC: chains=%d, tune=%d, draws=%d",
-            mcmc_kwargs["chains"], mcmc_kwargs["tune"], mcmc_kwargs["draws"],
+            mcmc_kwargs["chains"],
+            mcmc_kwargs["tune"],
+            mcmc_kwargs["draws"],
         )
         self._mmm.fit(
-            X=X, y=y,
+            X=X,
+            y=y,
             random_seed=self._random_seed,
             **mcmc_kwargs,
         )
@@ -165,7 +169,9 @@ class BayesianMMM(BaseMMM):
         feature_cols = [self._date_col] + self._channels + self._controls
         X_new = data[feature_cols].copy()
         pp_raw = self._mmm.sample_posterior_predictive(
-            X_new, combined=True, extend_idata=False,
+            X_new,
+            combined=True,
+            extend_idata=False,
         )
         pp_da = self._extract_data_array(pp_raw)
         return pp_da.mean(dim="sample").values * self._get_target_scale()
@@ -213,10 +219,7 @@ class BayesianMMM(BaseMMM):
             # The model scales channel data, so we apply saturation to
             # the normalized spend range.
             scaler = self._get_channel_scaler(ch)
-            if scaler > 0:
-                spends_scaled = spends / scaler
-            else:
-                spends_scaled = spends
+            spends_scaled = spends / scaler if scaler > 0 else spends
 
             responses = 1.0 - np.exp(-lam * spends_scaled)
 
@@ -259,11 +262,11 @@ class BayesianMMM(BaseMMM):
         residuals = y_actual - predictions
 
         # --- Fit metrics ---
-        ss_res = np.sum(residuals ** 2)
+        ss_res = np.sum(residuals**2)
         ss_tot = np.sum((y_actual - y_actual.mean()) ** 2)
         r_squared = float(1 - (ss_res / ss_tot)) if ss_tot > 0 else 0.0
         mape = float(np.mean(np.abs(residuals / np.where(y_actual != 0, y_actual, 1)))) * 100
-        rmse = float(np.sqrt(np.mean(residuals ** 2)))
+        rmse = float(np.sqrt(np.mean(residuals**2)))
 
         # --- Channel contributions ---
         contributions = self._extract_contributions(data, date_col, channels, predictions)
@@ -362,7 +365,9 @@ class BayesianMMM(BaseMMM):
         return contributions
 
     def _extract_adstock_params(
-        self, posterior: Any, channels: list[str],
+        self,
+        posterior: Any,
+        channels: list[str],
     ) -> dict[str, dict[str, float]]:
         """Extract learned adstock parameters from posterior."""
         params: dict[str, dict[str, float]] = {}
@@ -398,7 +403,9 @@ class BayesianMMM(BaseMMM):
         return params
 
     def _extract_saturation_params(
-        self, posterior: Any, channels: list[str],
+        self,
+        posterior: Any,
+        channels: list[str],
     ) -> dict[str, dict[str, float]]:
         """Extract learned saturation parameters from posterior."""
         params: dict[str, dict[str, float]] = {}
@@ -478,7 +485,8 @@ class BayesianMMM(BaseMMM):
                     logger.warning(
                         "Convergence warning: %s has Rhat=%.3f (>1.05). "
                         "Consider increasing tune/draws.",
-                        var_name, max_rhat,
+                        var_name,
+                        max_rhat,
                     )
         except Exception as e:
             logger.debug("Could not check convergence: %s", e)

@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from optmix.core.llm import OpenAIClient, ToolCall, create_llm_client
+from optmix.core.llm import OpenAIClient, create_llm_client
 
 
 class TestToolTranslation:

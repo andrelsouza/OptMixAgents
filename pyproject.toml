@@ -10,7 +10,7 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "OptMix Contributors"},
+    {name = "Andre Souza", email = "andrelsouza@users.noreply.github.com"},
 ]
 keywords = [
     "marketing-mix-modeling",
@@ -108,8 +108,8 @@ line-length = 100
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP", "ANN", "B", "SIM"]
-ignore = ["ANN101", "ANN102"]
+select = ["E", "F", "I", "W", "UP", "B", "SIM"]
+ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

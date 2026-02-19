@@ -149,9 +149,7 @@ class BaseMMM(ABC):
         """Get average ROAS for each channel."""
         ...
 
-    def get_marginal_roas(
-        self, channel: str, at_spend: float | None = None
-    ) -> float:
+    def get_marginal_roas(self, channel: str, at_spend: float | None = None) -> float:
         """
         Calculate marginal ROAS for a channel at a given spend level.
 

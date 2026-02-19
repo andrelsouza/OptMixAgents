@@ -94,10 +94,7 @@ def generate_markdown_report(state: Any, **params: Any) -> dict[str, Any]:
 
     # Load and render template
     template_path = TEMPLATES_DIR / "executive-report.md"
-    if template_path.exists():
-        template_text = template_path.read_text()
-    else:
-        template_text = _fallback_template()
+    template_text = template_path.read_text() if template_path.exists() else _fallback_template()
 
     try:
         template = Template(template_text, undefined=_SilentUndefined)
@@ -138,6 +135,7 @@ def generate_chart(state: Any, **params: Any) -> dict[str, Any]:
 
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
     except ImportError:
@@ -214,26 +212,30 @@ def create_action_plan(state: Any, **params: Any) -> dict[str, Any]:
         for ch, r in sorted(roas.items(), key=lambda x: x[1]):
             share = channel_share.get(ch, 0)
             if r < 1.0:
-                actions.append({
-                    "title": f"Review {ch} spend",
-                    "description": f"ROAS of {r:.2f}x is below breakeven. Currently {share*100:.1f}% of effect share.",
-                    "impact": "High",
-                    "effort": "Low",
-                    "timeline": "Immediate",
-                    "priority": 1,
-                })
+                actions.append(
+                    {
+                        "title": f"Review {ch} spend",
+                        "description": f"ROAS of {r:.2f}x is below breakeven. Currently {share * 100:.1f}% of effect share.",
+                        "impact": "High",
+                        "effort": "Low",
+                        "timeline": "Immediate",
+                        "priority": 1,
+                    }
+                )
 
         # Find high-performing channels that could take more budget
         for ch, r in sorted(roas.items(), key=lambda x: x[1], reverse=True):
             if r > 3.0:
-                actions.append({
-                    "title": f"Explore scaling {ch}",
-                    "description": f"ROAS of {r:.2f}x suggests room for growth. Check saturation curve before scaling.",
-                    "impact": "High",
-                    "effort": "Medium",
-                    "timeline": "Next sprint",
-                    "priority": 2,
-                })
+                actions.append(
+                    {
+                        "title": f"Explore scaling {ch}",
+                        "description": f"ROAS of {r:.2f}x suggests room for growth. Check saturation curve before scaling.",
+                        "impact": "High",
+                        "effort": "Medium",
+                        "timeline": "Next sprint",
+                        "priority": 2,
+                    }
+                )
                 break
 
     # Budget reallocation recommendations
@@ -246,25 +248,30 @@ def create_action_plan(state: Any, **params: Any) -> dict[str, Any]:
                     change_pct = ((opt_spend - prev_spend) / prev_spend) * 100
                     if abs(change_pct) > 15:
                         direction = "Increase" if change_pct > 0 else "Decrease"
-                        actions.append({
-                            "title": f"{direction} {ch} by {abs(change_pct):.0f}%",
-                            "description": f"Shift from ${prev_spend:,.0f} to ${opt_spend:,.0f}/period.",
-                            "impact": "Medium",
-                            "effort": "Low",
-                            "timeline": "Next budget cycle",
-                            "priority": 2,
-                        })
+                        actions.append(
+                            {
+                                "title": f"{direction} {ch} by {abs(change_pct):.0f}%",
+                                "description": f"Shift from ${prev_spend:,.0f} to ${opt_spend:,.0f}/period.",
+                                "impact": "Medium",
+                                "effort": "Low",
+                                "timeline": "Next budget cycle",
+                                "priority": 2,
+                            }
+                        )
 
         lift_pct = getattr(optimal_allocation, "expected_lift_pct", None)
         if lift_pct:
-            actions.insert(0, {
-                "title": "Implement optimized budget allocation",
-                "description": f"Rebalancing budget is expected to yield +{lift_pct:.1f}% lift.",
-                "impact": "High",
-                "effort": "Medium",
-                "timeline": "Next budget cycle",
-                "priority": 1,
-            })
+            actions.insert(
+                0,
+                {
+                    "title": "Implement optimized budget allocation",
+                    "description": f"Rebalancing budget is expected to yield +{lift_pct:.1f}% lift.",
+                    "impact": "High",
+                    "effort": "Medium",
+                    "timeline": "Next budget cycle",
+                    "priority": 1,
+                },
+            )
 
     # Sort by priority
     actions.sort(key=lambda a: a.get("priority", 99))
@@ -272,16 +279,18 @@ def create_action_plan(state: Any, **params: Any) -> dict[str, Any]:
     # Format as Markdown
     plan_lines = ["# Action Plan", "", "## Priority Recommendations", ""]
     for i, action in enumerate(actions, 1):
-        plan_lines.extend([
-            f"### {i}. {action['title']}",
-            "",
-            action["description"],
-            "",
-            f"- **Impact:** {action['impact']}",
-            f"- **Effort:** {action['effort']}",
-            f"- **Timeline:** {action['timeline']}",
-            "",
-        ])
+        plan_lines.extend(
+            [
+                f"### {i}. {action['title']}",
+                "",
+                action["description"],
+                "",
+                f"- **Impact:** {action['impact']}",
+                f"- **Effort:** {action['effort']}",
+                f"- **Timeline:** {action['timeline']}",
+                "",
+            ]
+        )
 
     plan_text = "\n".join(plan_lines)
     _set_state(state, "action_plan", plan_text, "reporter")
@@ -344,13 +353,15 @@ def _build_report_context(
         for ch in model_result.channels:
             roas = model_result.channel_roas.get(ch, 0)
             share = model_result.channel_share.get(ch, 0)
-            channels.append({
-                "name": ch,
-                "spend": "—",
-                "contribution": "—",
-                "roas": f"{roas:.2f}",
-                "share": f"{share * 100:.1f}",
-            })
+            channels.append(
+                {
+                    "name": ch,
+                    "spend": "—",
+                    "contribution": "—",
+                    "roas": f"{roas:.2f}",
+                    "share": f"{share * 100:.1f}",
+                }
+            )
         ctx["channels"] = channels
 
         # Estimation method (dynamic based on model type)
@@ -377,13 +388,15 @@ def _build_report_context(
             prev = (optimal_allocation.previous_allocation or {}).get(ch, 0)
             change = ((opt - prev) / prev * 100) if prev > 0 else 0
             mroas = optimal_allocation.channel_marginal_roas.get(ch, 0)
-            allocation.append({
-                "name": ch,
-                "current": f"{prev:,.0f}",
-                "optimal": f"{opt:,.0f}",
-                "change": f"{change:+.1f}%",
-                "mroas": f"{mroas:.2f}",
-            })
+            allocation.append(
+                {
+                    "name": ch,
+                    "current": f"{prev:,.0f}",
+                    "optimal": f"{opt:,.0f}",
+                    "change": f"{change:+.1f}%",
+                    "mroas": f"{mroas:.2f}",
+                }
+            )
         ctx["allocation"] = allocation
 
     # Saturation analysis
@@ -403,11 +416,12 @@ def _build_report_context(
 
     # Placeholders for LLM-generated content
     ctx["executive_summary"] = params_or_default(
-        model_result, optimal_allocation,
-        "Model fitted successfully. See details below."
+        model_result, optimal_allocation, "Model fitted successfully. See details below."
     )
     ctx["channel_findings"] = "See channel performance table above for detailed metrics."
-    ctx["saturation_analysis"] = "Saturation analysis identifies channels approaching diminishing returns."
+    ctx["saturation_analysis"] = (
+        "Saturation analysis identifies channels approaching diminishing returns."
+    )
     ctx["recommendations"] = "Based on the model results, the following actions are recommended."
     ctx["scenarios"] = []
     ctx["priority_actions"] = []
@@ -419,11 +433,15 @@ def params_or_default(model: Any, opt: Any, default: str) -> str:
     """Generate a basic executive summary from available data."""
     parts = []
     if model and hasattr(model, "r_squared") and model.r_squared:
-        parts.append(f"The marketing mix model explains {model.r_squared*100:.1f}% of variance in {model.target_variable}.")
+        parts.append(
+            f"The marketing mix model explains {model.r_squared * 100:.1f}% of variance in {model.target_variable}."
+        )
     if model and hasattr(model, "channels"):
         parts.append(f"{len(model.channels)} channels were analyzed.")
     if opt and hasattr(opt, "expected_lift_pct") and opt.expected_lift_pct:
-        parts.append(f"Budget optimization suggests a potential +{opt.expected_lift_pct:.1f}% improvement.")
+        parts.append(
+            f"Budget optimization suggests a potential +{opt.expected_lift_pct:.1f}% improvement."
+        )
     return " ".join(parts) if parts else default
 
 
@@ -475,9 +493,14 @@ def _chart_contributions(model_result: Any, plt: Any) -> Any:
     ax.set_title("Channel Contribution Share")
     ax.invert_yaxis()
 
-    for bar, val in zip(bars, shares):
-        ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height() / 2,
-                f"{val:.1f}%", va="center", fontsize=9)
+    for bar, val in zip(bars, shares, strict=True):
+        ax.text(
+            bar.get_width() + 0.5,
+            bar.get_y() + bar.get_height() / 2,
+            f"{val:.1f}%",
+            va="center",
+            fontsize=9,
+        )
 
     fig.tight_layout()
     return fig
@@ -512,10 +535,7 @@ def _chart_budget_comparison(allocation: Any, plt: Any) -> Any:
 
     channels = list(allocation.allocation.keys())
     optimal = [allocation.allocation[ch] for ch in channels]
-    current = [
-        (allocation.previous_allocation or {}).get(ch, 0)
-        for ch in channels
-    ]
+    current = [(allocation.previous_allocation or {}).get(ch, 0) for ch in channels]
 
     x = np.arange(len(channels))
     width = 0.35
@@ -548,9 +568,14 @@ def _chart_roas(model_result: Any, plt: Any) -> Any:
     ax.invert_yaxis()
     ax.legend()
 
-    for bar, val in zip(bars, roas_vals):
-        ax.text(bar.get_width() + 0.05, bar.get_y() + bar.get_height() / 2,
-                f"{val:.2f}x", va="center", fontsize=9)
+    for bar, val in zip(bars, roas_vals, strict=True):
+        ax.text(
+            bar.get_width() + 0.05,
+            bar.get_y() + bar.get_height() / 2,
+            f"{val:.2f}x",
+            va="center",
+            fontsize=9,
+        )
 
     fig.tight_layout()
     return fig

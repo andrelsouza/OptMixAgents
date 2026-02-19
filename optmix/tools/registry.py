@@ -8,8 +8,9 @@ definitions to the Anthropic Messages API format for LLM tool calling.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Callable
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -59,11 +60,7 @@ class ToolRegistry:
 
     def list_for_agent(self, agent_name: str) -> list[ToolSchema]:
         """List all tool schemas available to a specific agent."""
-        return [
-            schema
-            for schema in self._schemas.values()
-            if agent_name in schema.agent_scope
-        ]
+        return [schema for schema in self._schemas.values() if agent_name in schema.agent_scope]
 
     def execute(self, name: str, arguments: dict[str, Any], state: Any) -> dict[str, Any]:
         """Execute a tool by name with given arguments and state."""

@@ -20,21 +20,17 @@ def sample_data() -> pd.DataFrame:
     tv = rng.uniform(20_000, 100_000, n)
 
     # Simulated revenue with known channel effects + noise
-    revenue = (
-        50_000
-        + 0.8 * google
-        + 0.5 * meta
-        + 0.3 * tv
-        + rng.normal(0, 5_000, n)
-    )
+    revenue = 50_000 + 0.8 * google + 0.5 * meta + 0.3 * tv + rng.normal(0, 5_000, n)
 
-    return pd.DataFrame({
-        "date": dates,
-        "google_ads": google,
-        "meta_ads": meta,
-        "tv_spend": tv,
-        "revenue": revenue,
-    })
+    return pd.DataFrame(
+        {
+            "date": dates,
+            "google_ads": google,
+            "meta_ads": meta,
+            "tv_spend": tv,
+            "revenue": revenue,
+        }
+    )
 
 
 @pytest.fixture(scope="module")
@@ -119,7 +115,7 @@ class TestBayesianPosterior:
 
     def test_learned_params_have_hdi(self, fitted_result):
         _, result = fitted_result
-        for ch, params in result.adstock_params.items():
+        for _ch, params in result.adstock_params.items():
             if "decay_hdi_low" in params:
                 assert params["decay_hdi_low"] <= params["decay"]
                 assert params["decay_hdi_high"] >= params["decay"]
@@ -138,7 +134,7 @@ class TestBayesianCurves:
     def test_saturation_curves_shape(self, fitted_result):
         model, _ = fitted_result
         curves = model.get_saturation_curves()
-        for ch, df in curves.items():
+        for _ch, df in curves.items():
             assert "spend" in df.columns
             assert "response" in df.columns
             assert len(df) == 200

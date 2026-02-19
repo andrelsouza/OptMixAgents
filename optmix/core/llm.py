@@ -98,7 +98,9 @@ class AnthropicClient(LLMClient):
         model: str = "claude-sonnet-4-20250514",
         max_retries: int = 2,
     ) -> None:
-        self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPTMIX_API_KEY")
+        self.api_key = (
+            api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPTMIX_API_KEY")
+        )
         if not self.api_key:
             raise ValueError(
                 "Anthropic API key required. Set ANTHROPIC_API_KEY or OPTMIX_API_KEY "
@@ -110,14 +112,15 @@ class AnthropicClient(LLMClient):
 
         try:
             import anthropic
+
             self._client = anthropic.Anthropic(
                 api_key=self.api_key,
                 max_retries=max_retries,
             )
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "The 'anthropic' package is required. Install with: pip install anthropic"
-            )
+            ) from err
 
     def provider_name(self) -> str:
         return "anthropic"
@@ -205,7 +208,9 @@ class OpenAIClient(LLMClient):
         model: str = "gpt-4o",
         max_retries: int = 2,
     ) -> None:
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY") or os.environ.get("OPTMIX_API_KEY")
+        self.api_key = (
+            api_key or os.environ.get("OPENAI_API_KEY") or os.environ.get("OPTMIX_API_KEY")
+        )
         if not self.api_key:
             raise ValueError(
                 "OpenAI API key required. Set OPENAI_API_KEY or OPTMIX_API_KEY "
@@ -217,14 +222,15 @@ class OpenAIClient(LLMClient):
 
         try:
             import openai
+
             self._client = openai.OpenAI(
                 api_key=self.api_key,
                 max_retries=max_retries,
             )
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "The 'openai' package is required. Install with: pip install openai"
-            )
+            ) from err
 
     def provider_name(self) -> str:
         return "openai"
@@ -303,19 +309,29 @@ class OpenAIClient(LLMClient):
             # List of content blocks
             if isinstance(content, list):
                 # Check if this is a tool_result message
-                tool_results = [b for b in content if isinstance(b, dict) and b.get("type") == "tool_result"]
+                tool_results = [
+                    b for b in content if isinstance(b, dict) and b.get("type") == "tool_result"
+                ]
                 if tool_results:
                     for tr in tool_results:
-                        result.append({
-                            "role": "tool",
-                            "tool_call_id": tr.get("tool_use_id", ""),
-                            "content": tr.get("content", ""),
-                        })
+                        result.append(
+                            {
+                                "role": "tool",
+                                "tool_call_id": tr.get("tool_use_id", ""),
+                                "content": tr.get("content", ""),
+                            }
+                        )
                     continue
 
                 # Check if this is an assistant message with tool_use blocks
-                tool_uses = [b for b in content if isinstance(b, dict) and b.get("type") == "tool_use"]
-                text_parts = [b.get("text", "") for b in content if isinstance(b, dict) and b.get("type") == "text"]
+                tool_uses = [
+                    b for b in content if isinstance(b, dict) and b.get("type") == "tool_use"
+                ]
+                text_parts = [
+                    b.get("text", "")
+                    for b in content
+                    if isinstance(b, dict) and b.get("type") == "text"
+                ]
 
                 if tool_uses:
                     oai_msg: dict[str, Any] = {
@@ -423,13 +439,15 @@ class MockLLMClient(LLMClient):
         temperature: float = 0.3,
     ) -> LLMResponse:
         """Return the next scripted response."""
-        self.call_history.append({
-            "system": system,
-            "messages": messages,
-            "tools": tools,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-        })
+        self.call_history.append(
+            {
+                "system": system,
+                "messages": messages,
+                "tools": tools,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            }
+        )
 
         if self._call_index < len(self._responses):
             response = self._responses[self._call_index]
