@@ -1,0 +1,67 @@
+# Industry Benchmarks for Marketing Mix Modeling
+
+# These benchmarks are used by agents to sanity-check model outputs.
+# Sources: aggregated from public MMM studies, industry reports, and meta-analyses.
+# Last updated: 2026-01
+
+benchmarks:
+  roas_ranges:
+    description: "Typical ROAS ranges by channel and industry"
+    note: "Values represent total (not marginal) ROAS"
+    
+    ecommerce:
+      google_search: { low: 3.0, median: 6.0, high: 12.0 }
+      google_shopping: { low: 2.5, median: 5.0, high: 10.0 }
+      meta_ads: { low: 1.5, median: 3.5, high: 8.0 }
+      tiktok_ads: { low: 1.0, median: 2.5, high: 6.0 }
+      youtube: { low: 0.8, median: 2.0, high: 5.0 }
+      email: { low: 5.0, median: 15.0, high: 40.0 }
+      affiliate: { low: 3.0, median: 7.0, high: 15.0 }
+      display: { low: 0.5, median: 1.5, high: 4.0 }
+      tv: { low: 0.8, median: 2.5, high: 6.0 }
+      ooh: { low: 0.5, median: 1.8, high: 4.0 }
+
+    retail:
+      tv_national: { low: 1.0, median: 3.0, high: 7.0 }
+      tv_local: { low: 1.5, median: 4.0, high: 8.0 }
+      radio: { low: 1.0, median: 3.0, high: 6.0 }
+      ooh: { low: 0.8, median: 2.5, high: 5.0 }
+      print: { low: 0.3, median: 1.0, high: 3.0 }
+      digital: { low: 2.0, median: 5.0, high: 10.0 }
+
+    saas_b2b:
+      google_search: { low: 2.0, median: 5.0, high: 10.0 }
+      linkedin_ads: { low: 1.0, median: 2.5, high: 5.0 }
+      content_syndication: { low: 1.5, median: 3.0, high: 6.0 }
+      events: { low: 2.0, median: 5.0, high: 12.0 }
+      sdr_outbound: { low: 3.0, median: 6.0, high: 15.0 }
+
+  adstock_ranges:
+    description: "Typical adstock decay rates by channel type"
+    note: "Higher values = longer carryover effect"
+    
+    digital_search: { low: 0.05, typical: 0.20, high: 0.40 }
+    digital_social: { low: 0.10, typical: 0.35, high: 0.55 }
+    digital_display: { low: 0.20, typical: 0.45, high: 0.65 }
+    youtube_video: { low: 0.30, typical: 0.55, high: 0.75 }
+    tv_national: { low: 0.40, typical: 0.70, high: 0.90 }
+    tv_local: { low: 0.30, typical: 0.55, high: 0.75 }
+    radio: { low: 0.20, typical: 0.45, high: 0.65 }
+    ooh: { low: 0.30, typical: 0.55, high: 0.80 }
+    print: { low: 0.10, typical: 0.30, high: 0.50 }
+    email: { low: 0.02, typical: 0.10, high: 0.25 }
+    direct_mail: { low: 0.15, typical: 0.35, high: 0.55 }
+
+  base_revenue_share:
+    description: "What % of revenue is typically attributed to 'base' (non-marketing)"
+    ecommerce: { low: 30, typical: 50, high: 70 }
+    retail: { low: 40, typical: 60, high: 80 }
+    saas_b2b: { low: 35, typical: 55, high: 75 }
+    cpg: { low: 50, typical: 70, high: 85 }
+
+  model_fit:
+    description: "Expected R² ranges for well-specified MMM by industry"
+    ecommerce: { acceptable: 0.70, good: 0.85, excellent: 0.92 }
+    retail: { acceptable: 0.65, good: 0.80, excellent: 0.90 }
+    saas_b2b: { acceptable: 0.55, good: 0.72, excellent: 0.85 }
+    cpg: { acceptable: 0.70, good: 0.85, excellent: 0.95 }

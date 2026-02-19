@@ -1,0 +1,55 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make OptMix better? We'd love to hear it!
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What problem does this solve? Why do you need it?
+      placeholder: "I'm trying to analyze TikTok spend but there's no connector for..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would you like this to work?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you've thought about?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - MMM Engine
+        - Agents
+        - CLI / UX
+        - Connectors (data sources)
+        - Visualization / Reports
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: willing
+    attributes:
+      label: Would you be willing to contribute this?
+      options:
+        - "Yes, I'd like to work on this"
+        - "I can help with guidance"
+        - "No, just suggesting"

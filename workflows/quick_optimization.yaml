@@ -1,0 +1,51 @@
+workflow:
+  metadata:
+    name: quick-optimization
+    title: "Quick Budget Optimization"
+    version: "1.0.0"
+    description: >
+      Fast path for teams that already have clean data and want to go straight
+      to modeling and optimization. Skips the strategy phase and uses sensible
+      defaults. Ideal for recurring monthly optimizations.
+    estimated_duration: "5-15 minutes"
+
+  steps:
+    - id: validate_data
+      agent: analyst
+      action: validate
+      output: validated_data
+      required: true
+
+    - id: auto_features
+      agent: analyst
+      action: features
+      input: [validated_data]
+      output: model_ready_data
+      config:
+        auto_detect_seasonality: true
+        auto_detect_events: true
+      required: true
+
+    - id: fit_model
+      agent: modeler
+      action: fit
+      input: [model_ready_data]
+      output: fitted_model
+      config:
+        model_type: "ridge"  # Fast baseline first
+        auto_adstock: true
+      required: true
+
+    - id: optimize_budget
+      agent: optimizer
+      action: optimize
+      input: [fitted_model]
+      output: optimal_allocation
+      required: true
+
+    - id: one_pager
+      agent: reporter
+      action: one-pager
+      input: [fitted_model, optimal_allocation]
+      output: summary
+      required: true

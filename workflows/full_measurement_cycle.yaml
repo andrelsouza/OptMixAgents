@@ -1,0 +1,183 @@
+workflow:
+  metadata:
+    name: full-measurement-cycle
+    title: "End-to-End Marketing Measurement Cycle"
+    version: "1.0.0"
+    description: >
+      The flagship OptMix workflow. Takes a marketing team from raw data to
+      optimized budget allocation with an executive report. Follows the
+      Strategize → Model → Optimize → Activate phases.
+    estimated_duration: "15-45 minutes depending on data size and model complexity"
+
+  phases:
+    - name: strategize
+      title: "Phase 1: Strategize"
+      description: "Establish business context and measurement objectives"
+      steps:
+        - id: market_context
+          agent: strategist
+          action: market-context
+          output: market_context
+          description: >
+            Establish business objectives, competitive landscape, and channel
+            strategy. This sets the foundation for everything that follows.
+          required: true
+
+        - id: kpi_framework
+          agent: strategist
+          action: kpi-framework
+          input: [market_context]
+          output: kpi_framework
+          description: >
+            Define the KPI hierarchy connecting business goals to measurable
+            metrics. Determines what the model should optimize for.
+          required: true
+
+        - id: data_readiness
+          agent: strategist
+          action: data-readiness
+          input: [kpi_framework]
+          output: data_assessment
+          gate: data-readiness-checklist
+          description: >
+            Assess whether available data supports measurement objectives.
+            If gaps exist, flag them before investing time in modeling.
+          required: true
+
+    - name: model
+      title: "Phase 2: Model"
+      description: "Validate data, build features, fit and validate the MMM"
+      steps:
+        - id: validate_data
+          agent: analyst
+          action: validate
+          output: validated_data
+          description: "Run comprehensive data quality checks"
+          required: true
+
+        - id: run_eda
+          agent: analyst
+          action: eda
+          input: [validated_data]
+          output: eda_report
+          description: "Exploratory analysis: distributions, correlations, seasonality"
+          required: true
+
+        - id: engineer_features
+          agent: analyst
+          action: features
+          input: [validated_data, kpi_framework]
+          output: model_ready_data
+          description: "Create model-ready features: adstock candidates, control variables"
+          required: true
+
+        - id: check_collinearity
+          agent: analyst
+          action: collinearity
+          input: [model_ready_data]
+          output: collinearity_report
+          description: "Diagnose multicollinearity and recommend mitigations"
+          required: false
+
+        - id: fit_model
+          agent: modeler
+          action: fit
+          input: [model_ready_data, kpi_framework, market_context]
+          output: fitted_model
+          description: "Build and fit the Bayesian MMM"
+          required: true
+
+        - id: run_diagnostics
+          agent: modeler
+          action: diagnostics
+          input: [fitted_model]
+          output: diagnostics_report
+          gate: model-validation-checklist
+          description: >
+            Validate model fit, MCMC convergence, and business sense.
+            Must pass quality gate before proceeding.
+          required: true
+
+        - id: decompose_contributions
+          agent: modeler
+          action: contributions
+          input: [fitted_model]
+          output: channel_contributions
+          description: "Decompose outcome into channel contributions over time"
+          required: true
+
+    - name: optimize
+      title: "Phase 3: Optimize"
+      description: "Find optimal budget allocation and explore scenarios"
+      steps:
+        - id: optimize_budget
+          agent: optimizer
+          action: optimize
+          input: [fitted_model, market_context]
+          output: optimal_allocation
+          description: "Find optimal budget allocation under real-world constraints"
+          required: true
+
+        - id: calculate_mroas
+          agent: optimizer
+          action: marginal-roas
+          input: [fitted_model, optimal_allocation]
+          output: marginal_roas
+          description: "Calculate marginal ROAS at current and optimal spend levels"
+          required: true
+
+        - id: run_scenarios
+          agent: optimizer
+          action: scenarios
+          input: [fitted_model, optimal_allocation]
+          output: scenario_results
+          description: "Generate what-if scenarios for decision support"
+          required: false
+
+    - name: activate
+      title: "Phase 4: Activate"
+      description: "Generate reports and action plans for stakeholders"
+      steps:
+        - id: executive_report
+          agent: reporter
+          action: report
+          input:
+            - market_context
+            - eda_report
+            - diagnostics_report
+            - channel_contributions
+            - optimal_allocation
+            - marginal_roas
+            - scenario_results
+          output: executive_report
+          description: "Compile all findings into an executive-ready report"
+          required: true
+
+        - id: action_plan
+          agent: reporter
+          action: action-plan
+          input: [optimal_allocation, market_context, marginal_roas]
+          output: action_plan
+          description: "Create prioritized, actionable recommendations"
+          required: true
+
+  shared_state:
+    - market_context
+    - kpi_framework
+    - validated_data
+    - model_ready_data
+    - fitted_model
+    - channel_contributions
+    - optimal_allocation
+    - scenario_results
+
+  quality_gates:
+    - id: data-readiness
+      checklist: data-readiness-checklist
+      after_step: data_readiness
+      on_fail: "halt_and_notify"
+
+    - id: model-validation
+      checklist: model-validation-checklist
+      after_step: run_diagnostics
+      on_fail: "retry_with_feedback"

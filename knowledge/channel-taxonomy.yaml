@@ -1,0 +1,121 @@
+# Channel Taxonomy for Marketing Mix Modeling
+
+# Standard channel classifications used by OptMix agents for consistent
+# naming, grouping, and analysis across different data sources.
+
+taxonomy:
+  paid_search:
+    display_name: "Paid Search"
+    aliases: ["SEM", "PPC", "Google Ads Search", "Bing Ads"]
+    funnel_position: "lower"
+    typical_objective: "conversions"
+    measurement_notes: "High intent, but beware of brand vs non-brand cannibalization"
+    common_columns: ["google_search", "bing_search", "sem", "paid_search"]
+
+  paid_shopping:
+    display_name: "Shopping Ads"
+    aliases: ["PLA", "Google Shopping", "Product Listing Ads"]
+    funnel_position: "lower"
+    typical_objective: "conversions"
+    measurement_notes: "Often collinear with paid search — consider combining"
+    common_columns: ["google_shopping", "shopping_ads", "pla"]
+
+  paid_social:
+    display_name: "Paid Social"
+    subcategories:
+      meta:
+        aliases: ["Facebook Ads", "Instagram Ads", "Meta Ads"]
+        common_columns: ["meta_ads", "facebook", "instagram", "meta"]
+      tiktok:
+        aliases: ["TikTok Ads", "TikTok"]
+        common_columns: ["tiktok_ads", "tiktok"]
+      linkedin:
+        aliases: ["LinkedIn Ads", "LinkedIn"]
+        common_columns: ["linkedin_ads", "linkedin"]
+      pinterest:
+        aliases: ["Pinterest Ads"]
+        common_columns: ["pinterest_ads", "pinterest"]
+      snapchat:
+        aliases: ["Snapchat Ads"]
+        common_columns: ["snapchat_ads", "snap"]
+    funnel_position: "mid"
+    typical_objective: "awareness_and_conversions"
+    measurement_notes: "Platform-reported ROAS is typically overstated by 20-50%"
+
+  video:
+    display_name: "Video"
+    subcategories:
+      youtube:
+        aliases: ["YouTube Ads", "YouTube"]
+        common_columns: ["youtube", "youtube_ads"]
+      ctv:
+        aliases: ["Connected TV", "CTV", "OTT", "Streaming TV"]
+        common_columns: ["ctv", "ott", "streaming_tv"]
+    funnel_position: "upper_to_mid"
+    typical_objective: "awareness"
+    measurement_notes: "Longer adstock effects — ensure sufficient lag structure"
+
+  display:
+    display_name: "Display/Programmatic"
+    aliases: ["Programmatic", "Banner Ads", "Display Network"]
+    funnel_position: "upper"
+    typical_objective: "awareness"
+    measurement_notes: "Often weakest ROAS — consider if it's enabling other channels"
+    common_columns: ["display", "programmatic", "gdn", "banner"]
+
+  tv:
+    display_name: "Television"
+    subcategories:
+      national:
+        aliases: ["National TV", "Linear TV"]
+        common_columns: ["tv_national", "national_tv", "linear_tv"]
+      local:
+        aliases: ["Local TV", "Spot TV"]
+        common_columns: ["tv_local", "local_tv", "spot_tv"]
+    funnel_position: "upper"
+    typical_objective: "awareness_and_reach"
+    measurement_notes: "Longest adstock. Often the most expensive but hardest to measure"
+
+  radio:
+    display_name: "Radio"
+    aliases: ["Terrestrial Radio", "Streaming Radio", "Podcast Ads"]
+    funnel_position: "upper_to_mid"
+    typical_objective: "awareness"
+    common_columns: ["radio", "radio_ads", "podcast"]
+
+  ooh:
+    display_name: "Out of Home"
+    aliases: ["OOH", "Outdoor", "Billboards", "Transit Ads", "DOOH"]
+    funnel_position: "upper"
+    typical_objective: "awareness"
+    measurement_notes: "Difficult to vary spend — consider using GRP or impressions"
+    common_columns: ["ooh", "outdoor", "billboard"]
+
+  email:
+    display_name: "Email Marketing"
+    aliases: ["CRM Email", "Email"]
+    funnel_position: "lower"
+    typical_objective: "retention_and_conversions"
+    measurement_notes: "Very short adstock. High ROAS but often targets existing customers"
+    common_columns: ["email", "email_marketing", "crm_email"]
+
+  affiliate:
+    display_name: "Affiliate Marketing"
+    aliases: ["Affiliate", "Partner Marketing", "Referral"]
+    funnel_position: "lower"
+    typical_objective: "conversions"
+    measurement_notes: "Can inflate ROAS by claiming credit for organic conversions"
+    common_columns: ["affiliate", "affiliates", "partner"]
+
+  organic:
+    display_name: "Organic Channels"
+    subcategories:
+      seo:
+        aliases: ["SEO", "Organic Search"]
+        common_columns: ["seo", "organic_search"]
+      organic_social:
+        aliases: ["Organic Social"]
+        common_columns: ["organic_social"]
+    funnel_position: "varies"
+    typical_objective: "varies"
+    measurement_notes: "Usually a control variable, not a spend variable in MMM"

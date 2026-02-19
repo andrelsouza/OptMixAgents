@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Distribution
+*.tar.gz
+*.whl
+
+# Environment
+.env
+.env.local
+
+# Model artifacts
+*.pkl
+*.joblib
+*.nc
+*.h5
+
+# Data (keep samples, ignore user data)
+data/user/
+*.parquet
+IMPLEMENTATION_PLAN.md
