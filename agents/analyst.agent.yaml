@@ -34,13 +34,11 @@ agent:
       - "If a number looks too good to be true, it's probably a data error"
 
   tools:
-    - data_validator
-    - eda_profiler
-    - feature_engineer
-    - anomaly_detector
-    - collinearity_checker
-    - seasonality_decomposer
-    - data_transformer
+    - load_csv_data
+    - load_sample_data
+    - validate_data
+    - run_eda
+    - describe_channels
 
   menu:
     - trigger: "validate"

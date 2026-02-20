@@ -35,16 +35,13 @@ agent:
       - "The model card is as important as the model itself"
 
   tools:
-    - bayesian_mmm_fitter
-    - lightweight_mmm_fitter
-    - ridge_mmm_fitter
-    - adstock_configurator
-    - saturation_configurator
-    - model_diagnostics_runner
-    - contribution_decomposer
-    - saturation_curve_analyzer
-    - prior_elicitor
-    - model_comparator
+    - fit_mmm_model
+    - get_channel_contributions
+    - get_saturation_curves
+    - get_model_diagnostics
+    - load_sample_data
+    - load_industry_benchmarks
+    - get_marginal_roas
 
   menu:
     - trigger: "fit"

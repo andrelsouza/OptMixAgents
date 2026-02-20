@@ -34,11 +34,12 @@ agent:
       - "Budget constraints are features, not bugs — they force strategic prioritization"
 
   tools:
-    - market_context_builder
-    - kpi_framework_generator
-    - channel_portfolio_analyzer
-    - competitive_benchmark_loader
-    - data_readiness_assessor
+    - load_industry_benchmarks
+    - load_channel_taxonomy
+    - assess_data_readiness
+    - load_csv_data
+    - load_sample_data
+    - describe_channels
 
   menu:
     - trigger: "market-context"

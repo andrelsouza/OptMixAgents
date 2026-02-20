@@ -42,7 +42,7 @@ You: "Our CAC increased 23% last quarter. What's driving it and how do we fix it
 
 Strategist Maya: "Let me pull the context. Loading your channel data..."
 Analyst Kai:     "Running decomposition. TV adstock is carrying over into wasted frequency..."
-Modeler Alex:    "Bayesian MMM fitted. Saturation curves show Meta is past inflection point..."
+Modeler Priya:   "Bayesian MMM fitted. Saturation curves show Meta is past inflection point..."
 Optimizer Ravi:  "Reallocation ready. Shifting 18% from Meta to TikTok yields +12% ROAS..."
 Reporter Nora:   "Executive summary generated with confidence intervals and scenario comparison."
 ```
@@ -96,15 +96,15 @@ Inside `optmix chat`:
 
 ## The Agents
 
-Each agent is a fully defined persona with specialized tools, defined as YAML configuration files. Agents can **delegate tasks to each other** automatically — ask Maya a modeling question and she'll consult Alex.
+Each agent is a fully defined persona with specialized tools, defined as YAML configuration files. Agents can **delegate tasks to each other** automatically — ask Maya a modeling question and she'll consult Priya.
 
 | Agent | Persona | Role | Core Tools |
 |-------|---------|------|------------|
-| **Strategist** | Maya Chen | Sets business context, defines KPIs, creates measurement briefs | `market_context_builder`, `kpi_framework`, `channel_portfolio_analyzer` |
-| **Analyst** | Kai Nakamura | Data validation, EDA, feature engineering, anomaly detection | `data_validator`, `eda_profiler`, `feature_engineer` |
-| **Modeler** | Alex Petrov | Builds & fits MMM models, runs diagnostics, extracts contributions | `fit_mmm_model`, `model_diagnostics`, `contribution_decomposer` |
-| **Optimizer** | Ravi Santos | Budget allocation, scenario simulation, constrained optimization | `budget_optimizer`, `scenario_simulator`, `marginal_roi_calculator` |
-| **Reporter** | Nora Lindqvist | Generates executive reports, visualizations, and action plans | `report_generator`, `chart_builder`, `action_plan_creator` |
+| **Strategist** | Maya Chen | Sets business context, defines KPIs, creates measurement briefs | `load_industry_benchmarks`, `load_channel_taxonomy`, `assess_data_readiness` |
+| **Analyst** | Kai Nakamura | Data validation, EDA, feature engineering, anomaly detection | `validate_data`, `run_eda`, `describe_channels` |
+| **Modeler** | Priya Sharma | Builds & fits MMM models, runs diagnostics, extracts contributions | `fit_mmm_model`, `get_model_diagnostics`, `get_channel_contributions` |
+| **Optimizer** | Ravi Santos | Budget allocation, scenario simulation, constrained optimization | `optimize_budget`, `run_scenario`, `get_marginal_roas` |
+| **Reporter** | Nora Lindqvist | Generates executive reports, visualizations, and action plans | `generate_markdown_report`, `generate_chart`, `create_action_plan` |
 | **Orchestrator** | — | Routes tasks, manages shared state, ensures context handoffs | Automatic routing based on query content |
 
 ### Agent Interaction Example
@@ -211,24 +211,54 @@ print(scenario.expected_lift_pct)  # Revenue change %
 Workflows are YAML files that define structured, multi-step processes with quality gates between phases.
 
 ```yaml
-# workflows/full_measurement_cycle.yaml
+# workflows/full_measurement_cycle.yaml (simplified)
 workflow:
   name: full-measurement-cycle
   title: "End-to-End Marketing Measurement"
-  steps:
-    - agent: strategist
-      action: build-market-context
-    - agent: analyst
-      action: validate-data
-    - agent: analyst
-      action: run-eda
-    - agent: modeler
-      action: fit-model
-      gate: model-validation-checklist
-    - agent: optimizer
-      action: optimize-budget
-    - agent: reporter
-      action: generate-report
+  phases:
+    - name: strategize
+      steps:
+        - id: market_context
+          agent: strategist
+          action: market-context
+        - id: data_readiness
+          agent: strategist
+          action: data-readiness
+          gate: data-readiness-checklist
+
+    - name: model
+      steps:
+        - id: validate_data
+          agent: analyst
+          action: validate
+        - id: run_eda
+          agent: analyst
+          action: eda
+        - id: fit_model
+          agent: modeler
+          action: fit
+        - id: run_diagnostics
+          agent: modeler
+          action: diagnostics
+          gate: model-validation-checklist
+
+    - name: optimize
+      steps:
+        - id: optimize_budget
+          agent: optimizer
+          action: optimize
+        - id: calculate_mroas
+          agent: optimizer
+          action: marginal-roas
+
+    - name: activate
+      steps:
+        - id: executive_report
+          agent: reporter
+          action: report
+        - id: action_plan
+          agent: reporter
+          action: action-plan
 ```
 
 Run with:

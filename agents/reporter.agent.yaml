@@ -33,12 +33,10 @@ agent:
       - "Compare to benchmarks — absolute numbers mean nothing without context"
 
   tools:
-    - report_generator
-    - chart_builder
-    - insight_narrator
-    - action_plan_creator
-    - presentation_builder
-    - benchmark_comparator
+    - generate_markdown_report
+    - generate_chart
+    - create_action_plan
+    - get_channel_contributions
 
   menu:
     - trigger: "report"
