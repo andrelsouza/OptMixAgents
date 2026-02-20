@@ -65,8 +65,10 @@ def load_config(config_path: Path | None = None) -> OptMixConfig:
 
     try:
         raw = yaml.safe_load(path.read_text()) or {}
-    except Exception:
-        logger.warning("Failed to read config at %s, using defaults.", path)
+    except FileNotFoundError:
+        return OptMixConfig()
+    except yaml.YAMLError:
+        logger.warning("Failed to parse config at %s, using defaults.", path)
         return OptMixConfig()
 
     return OptMixConfig(
