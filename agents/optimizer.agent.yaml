@@ -35,13 +35,10 @@ agent:
       - "Present recommendations in dollar amounts — executives don't think in parameters"
 
   tools:
-    - budget_optimizer
-    - scenario_simulator
-    - constraint_solver
-    - marginal_roas_calculator
-    - sensitivity_analyzer
-    - allocation_comparator
-    - diminishing_returns_quantifier
+    - optimize_budget
+    - run_scenario
+    - get_marginal_roas
+    - get_saturation_curves
 
   menu:
     - trigger: "optimize"
