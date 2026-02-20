@@ -65,8 +65,10 @@ def load_config(config_path: Path | None = None) -> OptMixConfig:
 
     try:
         raw = yaml.safe_load(path.read_text()) or {}
-    except Exception:
-        logger.warning("Failed to read config at %s, using defaults.", path)
+    except FileNotFoundError:
+        return OptMixConfig()
+    except yaml.YAMLError:
+        logger.warning("Failed to parse config at %s, using defaults.", path)
         return OptMixConfig()
 
     return OptMixConfig(
@@ -123,11 +125,26 @@ def resolve_config(
 
     Returns:
         Fully resolved OptMixConfig.
+
+    Raises:
+        ValueError: If provider is not in SUPPORTED_PROVIDERS.
     """
+    # Validate provider if provided
+    if provider is not None and provider not in SUPPORTED_PROVIDERS:
+        raise ValueError(
+            f"Unsupported provider: '{provider}'. Supported providers: {SUPPORTED_PROVIDERS}"
+        )
+
     file_cfg = load_config(config_path)
 
     # Provider: CLI flag > config file > default
     resolved_provider = provider or file_cfg.provider or "anthropic"
+
+    # Validate resolved provider from config file
+    if resolved_provider not in SUPPORTED_PROVIDERS:
+        raise ValueError(
+            f"Unsupported provider in config: '{resolved_provider}'. Supported providers: {SUPPORTED_PROVIDERS}"
+        )
 
     # Model: CLI flag > config file > default for provider
     resolved_model = model or file_cfg.model or DEFAULT_MODELS.get(resolved_provider, "")
