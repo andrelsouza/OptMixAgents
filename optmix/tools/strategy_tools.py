@@ -213,6 +213,7 @@ def assess_data_readiness(state: Any) -> dict[str, Any]:
 
     # Check 6: Date range covers at least 1 year
     sufficient_range = False
+    date_span = 0
     if date_cols:
         try:
             dates = pd.to_datetime(df[date_cols[0]])

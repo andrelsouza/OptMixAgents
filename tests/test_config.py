@@ -164,3 +164,19 @@ class TestResolveConfig:
         monkeypatch.setenv("OPTMIX_API_KEY", "sk-optmix-shared")
         cfg = resolve_config(config_path=tmp_path / "nope.yaml")
         assert cfg.api_key == "sk-optmix-shared"
+
+    def test_invalid_cli_provider_raises_value_error(self, tmp_path):
+        with pytest.raises(ValueError) as exc_info:
+            resolve_config(provider="invalid_provider", config_path=tmp_path / "nope.yaml")
+        assert "Unsupported provider" in str(exc_info.value)
+        assert "invalid_provider" in str(exc_info.value)
+        assert "anthropic" in str(exc_info.value)
+        assert "openai" in str(exc_info.value)
+
+    def test_invalid_config_provider_raises_value_error(self, tmp_config):
+        # Save config with invalid provider
+        tmp_config.write_text(yaml.dump({"provider": "invalid_provider"}))
+        with pytest.raises(ValueError) as exc_info:
+            resolve_config(config_path=tmp_config)
+        assert "Unsupported provider in config" in str(exc_info.value)
+        assert "invalid_provider" in str(exc_info.value)
