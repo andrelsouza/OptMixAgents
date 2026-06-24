@@ -92,6 +92,81 @@ class TestSaturationTransforms:
         expected = np.array([0.0, 10.0, 20.0])
         np.testing.assert_array_almost_equal(result, expected)
 
+    # ── logistic_saturation ──────────────────────────────────────────
+
+    def test_logistic_saturation_zero_spend_returns_near_zero(self):
+        from optmix.mmm.transforms.saturation import logistic_saturation
+
+        result = logistic_saturation(np.array([0.0]), midpoint=50000, steepness=1.0)
+        np.testing.assert_almost_equal(result[0], 0.0, decimal=4)
+
+    def test_logistic_saturation_large_spend_returns_near_one(self):
+        from optmix.mmm.transforms.saturation import logistic_saturation
+
+        result = logistic_saturation(np.array([1e10]), midpoint=50000, steepness=1.0)
+        np.testing.assert_almost_equal(result[0], 1.0, decimal=4)
+
+    def test_logistic_saturation_monotonically_increasing(self):
+        from optmix.mmm.transforms.saturation import logistic_saturation
+
+        spend = np.linspace(0, 200000, 100)
+        result = logistic_saturation(spend, midpoint=50000, steepness=2.0)
+        assert np.all(np.diff(result) >= 0)
+
+    def test_logistic_saturation_bounded_zero_to_one(self):
+        from optmix.mmm.transforms.saturation import logistic_saturation
+
+        spend = np.linspace(0, 1e8, 100)
+        result = logistic_saturation(spend, midpoint=50000, steepness=2.0)
+        assert np.all(result >= 0)
+        assert np.all(result <= 1)
+
+    def test_logistic_saturation_handles_numpy_array(self):
+        from optmix.mmm.transforms.saturation import logistic_saturation
+
+        spend = np.array([0.0, 25000.0, 50000.0, 100000.0, 200000.0])
+        result = logistic_saturation(spend, midpoint=50000, steepness=1.0)
+        assert len(result) == 5
+        assert isinstance(result, np.ndarray)
+
+    # ── michaelis_menten ─────────────────────────────────────────────
+
+    def test_michaelis_menten_at_km_returns_half_vmax(self):
+        from optmix.mmm.transforms.saturation import michaelis_menten
+
+        result = michaelis_menten(np.array([50.0]), vmax=100.0, km=50.0)
+        np.testing.assert_almost_equal(result[0], 50.0)  # vmax/2
+
+    def test_michaelis_menten_zero_spend_returns_zero(self):
+        from optmix.mmm.transforms.saturation import michaelis_menten
+
+        result = michaelis_menten(np.array([0.0]), vmax=100.0, km=50.0)
+        assert result[0] == 0.0
+
+    def test_michaelis_menten_invalid_km_raises_valueerror(self):
+        from optmix.mmm.transforms.saturation import michaelis_menten
+
+        with pytest.raises(ValueError):
+            michaelis_menten(np.array([100.0]), vmax=100.0, km=0.0)
+        with pytest.raises(ValueError):
+            michaelis_menten(np.array([100.0]), vmax=100.0, km=-1.0)
+
+    def test_michaelis_menten_handles_numpy_array(self):
+        from optmix.mmm.transforms.saturation import michaelis_menten
+
+        spend = np.array([0.0, 50.0, 100.0, 200.0])
+        result = michaelis_menten(spend, vmax=100.0, km=50.0)
+        assert len(result) == 4
+        assert isinstance(result, np.ndarray)
+        np.testing.assert_almost_equal(result[1], 50.0)  # at km
+        assert result[2] > result[1]
+
+    def test_michaelis_menten_approaches_vmax(self):
+        from optmix.mmm.transforms.saturation import michaelis_menten
+
+        result = michaelis_menten(np.array([1e10]), vmax=100.0, km=50.0)
+        np.testing.assert_almost_equal(result[0], 100.0, decimal=2)
+
 
 class TestAgentSchema:
     """Test agent YAML loading and compilation."""
